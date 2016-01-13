@@ -1,0 +1,88 @@
+Protar
+======
+Protected Area Land Cover Change Explorer. The app is published under the European Union Public License (EUPL) Version 1.1. See LICENSE file.
+
+Install
+-------
+
+* ``git pull ..repository..``
+* ``pip install -r requirements.txt``
+* ``bower install``
+* ``./manage.py runserver``
+
+Env Vars
+--------
+
+Required:
+
+* ``DB_NAME``
+* ``SECRET_KEY``
+
+Optional:
+
+* ``DEBUG``
+* ``AWS_STORAGE_BUCKET_NAME_STATIC``
+* ``STATIC_ROOT``
+* ``AWS_STORAGE_BUCKET_NAME_MEDIA``
+* ``AWS_ACCESS_KEY_ID``
+* ``AWS_SECRET_ACCESS_KEY``
+
+Data Source
+^^^^^^^^^^^
+Natura 2000 protected areas.
+http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/66812705cd9b4c4280660e5eb0d8d59c
+
+Corrine Land cover
+^^^^^^^^^^^^^^^^^^
+
+Copernicus v18 2012
+
+http://land.copernicus.eu/pan-european/corine-land-cover/clc-2012/
+
+EEA
+
+All for Version 17
+
+1990
+http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/e3cae160d2314608bc945caf86f1abd7
+
+2000
+http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/9d72c3758040434da6905011e4aecbd6
+
+2006
+http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/a47ee0d3248146908f72a8fde9939d9d
+
+Change 1990-2000
+http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/e68ea8e6ce904769a727539ef37f8c75
+
+Change 2000-2006
+http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/f497a90b18dc496b823e3b71137eff7a
+
+Population Density 1990
+http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/8C25939C-F4CC-443F-852D-F2680B2117A1
+
+Population Density 2000
+http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/F6907877-C585-45DE-B93F-E7FC0975DE2A
+
+Base Maps
+---------
+CartoDB and Stamen collaborated to make beautiful basemaps that are ideal for
+data overlays. They are released under a CC3.0 License.
+
+https://cartodb.com/basemaps/
+
+https://creativecommons.org/licenses/by/3.0/
+
+https://github.com/cartodb/cartodb-basemaps
+
+Funding
+-------
+This application has been developed within the MyGEOSS project, which has received funding from the European Union’s Horizon 2020 research and innovation programme.
+
+Disclaimer
+------------
+The JRC, or as the case may be the European Commission, shall not be held liable for any direct or indirect, incidental, consequential or other damages, including but not limited to the loss of data, loss of profits, or any other financial loss arising from the use of this application, or inability to use it, even if the JRC is notified of the possibility of such damages.
+
+App Stores
+----------
+This is a web application not a mobile application. It is therefore not available on app stores.

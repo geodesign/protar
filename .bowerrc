@@ -1,0 +1,6 @@
+{
+  "directory": "frontend/components",
+  "analytics": false,
+  "timeout": 120000,
+  "allow-root": true
+}

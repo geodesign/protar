@@ -1,0 +1,27 @@
+language: python
+
+python:
+  - '2.7'
+  - '3.4'
+
+sudo: false
+
+env:
+  - DB_NAME=protar_test PYTHONPATH=$PYTHONPATH:$PWD DJANGO_SETTINGS_MODULE=settings 
+
+before_script:
+  - psql -c 'create database protar_test' -U postgres
+  - psql -c 'create extension postgis' -U postgres -d protar_test
+
+install: 
+  - pip install -r requirements.txt
+  - npm install requirejs bower less-plugin-autoprefix
+  - bower install
+
+before_script:
+  - r.js -o frontend/js/build_frame.js
+
+script: django-admin.py test
+
+notifications:
+  email: false

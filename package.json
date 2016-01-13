@@ -1,0 +1,20 @@
+{
+  "name": "protar",
+  "version": "0.0.1",
+  "engines": {
+    "node": "0.10.x",
+    "npm": "2.1.x"
+  },
+  "dependencies": {
+    "less": "*",
+    "requirejs": "*",
+    "bower": "1.4.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:geodesign/protar.git"
+  },
+  "scripts": {
+    "postinstall": "bower install --force-latest && r.js -o frontend/js/build.js"
+  }
+}

@@ -1,0 +1,34 @@
+# backups
+*.swp
+
+# python stuff
+*.pyc
+
+# osx files
+.DS_Store
+
+# sass cache
+.sass-cache
+
+# Built app
+*dist.js
+
+# sql lite stuff
+*.db
+
+# Ignore node files
+node_modules
+
+# Ignore bower files
+frontend/components
+
+# Test restults and coverage
+.coverage
+
+# Ignore data directory
+data
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
