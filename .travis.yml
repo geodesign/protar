@@ -7,7 +7,7 @@ python:
 sudo: false
 
 env:
-  - DB_NAME=protar_test PYTHONPATH=$PYTHONPATH:$PWD DJANGO_SETTINGS_MODULE=protar.settings 
+  - DB_NAME=protar_test PYTHONPATH=$PYTHONPATH:$PWD DJANGO_SETTINGS_MODULE=protar.settings SECRET_KEY=testkey
 
 before_script:
   - psql -c 'create database protar_test' -U postgres
