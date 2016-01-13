@@ -19,7 +19,7 @@ install:
   - bower install
 
 before_script:
-  - r.js -o frontend/js/build_frame.js
+  - r.js -o frontend/js/build.js
 
 script: django-admin.py test
 
