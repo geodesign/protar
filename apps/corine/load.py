@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 
@@ -29,29 +30,39 @@ def run(source, path=None):
 
     code_mapping = 'code_' + year
 
+    year = const.YEAR_MAPPING[year]
+
     print(mapping, year)
 
-    nomenclature = Nomenclature.objects.all()
+    nomenclature = {x.code: x.id for x in Nomenclature.objects.all()}
 
     ds = DataSource(source)
     lyr = ds[0]
     counter = 0
 
+    batch = []
+
     for feat in lyr:
         counter += 1
-        p = Patch(geom=feat.geom.wkb)
 
-        p.nomenclature = nomenclature.get(code=feat.get(code_mapping))
+        patch = Patch(
+            geom=feat.geom.wkb,
+            year=year,
+            nomenclature_id=nomenclature[feat.get(code_mapping)],
+        )
 
         if change:
-            p.nomenclature_previous = nomenclature.get(code=feat.get(code_previous_mapping))
+            patch.nomenclature_previous_id = nomenclature[feat.get(code_previous_mapping)]
 
         for k, v in mapping.items():
-            setattr(p, k, feat.get(v))
+            setattr(patch, k, feat.get(v))
 
-        p.year = const.YEAR_MAPPING[year]
+        batch.append(patch)
 
-        p.save()
+        if counter % 5000 == 0:
+            Patch.objects.bulk_create(batch)
+            batch = []
+            now = '[{0}]'.format(datetime.datetime.now().strftime('%Y-%m-%d %T'))
+            print('{} Processed {} features'.format(now, counter))
 
-        if counter % 1000 == 0:
-            print('Processed %s features' % counter)
+    Patch.objects.bulk_create(batch)
