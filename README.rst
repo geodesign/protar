@@ -61,6 +61,17 @@ Copernicus v18 2012
 
 http://land.copernicus.eu/pan-european/corine-land-cover/clc-2012/
 
+Land Cover Polygions in sqlite format
+https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc90_Version_18_4.sqlite.rar
+https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc00_revised_Version_18_4.sqlite.rar
+https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc06_revised_Version_18_4.sqlite.rar
+https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc12_Version_18_4.sqlite.rar
+
+Land Cover Change Polygions in sqlite format
+https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha00_Version_18_4.sqlite.rar
+https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha06_Version_18_4.sqlite.rar
+https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha12_Version_18_4.sqlite.rar
+
 EEA
 
 All for Version 17
