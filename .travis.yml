@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - '2.7'
   - '3.4'
 
 sudo: false
@@ -21,7 +20,7 @@ install:
 before_script:
   - r.js -o frontend/js/build.js
 
-script: django-admin.py test
+script: ./manage.py test
 
 notifications:
   email: false

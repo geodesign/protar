@@ -33,8 +33,8 @@ INSTALLED_APPS = (
     'raster_aggregation',
 
     # Protar apps
-    # 'corine',
-    # 'natura',
+    'corine',
+    'natura',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,7 +53,7 @@ ROOT_URLCONF = 'protar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'ispecia/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'protar/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -1,6 +1,8 @@
+======
 Protar
 ======
-Protected Area Land Cover Change Explorer. The app is published under the European Union Public License (EUPL) Version 1.1. See LICENSE file.
+Protected Area Land Cover Change Explorer. The app is published under the
+European Union Public License (EUPL) Version 1.1. See the LICENSE file.
 
 Install
 -------
@@ -9,6 +11,26 @@ Install
 * ``pip install -r requirements.txt``
 * ``bower install``
 * ``./manage.py runserver``
+
+Loading Data
+------------
+The protar app comes with fixtures for setting up the base data in the app
+(such as nomenclatures etc).
+
+Corine
+^^^^^^
+Load the fixtures for the corine app like this::
+
+    python manage.py loaddata clc_nomenclature
+
+The script to create fixtures for the corine nomenclature is also part of this
+app. The following command re-run the script and recreate the fixtures from the
+input csv file in the scripts data directory::
+
+    python scripts/create_corine_nomenclature_fixtures.py
+
+Running this script should not be necessary unless you want to change the
+fixtures data.
 
 Env Vars
 --------
