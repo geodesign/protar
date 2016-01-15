@@ -26,6 +26,7 @@ class Patch(models.Model):
     year = models.IntegerField()
     nomenclature = models.ForeignKey(Nomenclature)
 
+    change = models.BooleanField()
     nomenclature_previous = models.ForeignKey(Nomenclature, null=True, related_name='previous_patches')
     change_type = models.CharField(max_length=10, null=True)
 
@@ -43,7 +44,3 @@ class Patch(models.Model):
 
     def __str__(self):
         return '{} ({}Year {})'.format(self.nomenclature.label_3, 'Change, ' if self.change else '', self.year)
-
-    @property
-    def change(self):
-        return self.nomenclature_previous is not None
