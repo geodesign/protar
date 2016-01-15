@@ -1,14 +1,17 @@
 from __future__ import absolute_import
 
 import os
+import sys
 
 from celery import Celery
 
 from django.conf import settings
 
+# Add the apps directory to the python path for celery to find the apps
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../apps'))
+
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'protar.settings')
-
 
 app = Celery('protar')
 
