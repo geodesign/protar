@@ -1,9 +1,9 @@
 """
 Create fixtures for nomenclature model in corine app.
 
-After running this script, load fixtures into databse like this::
+After running this script, load fixtures into databse like this:
 
-    python manage.py loaddata clc_nomenclature
+python manage.py loaddata clc_nomenclature
 """
 import csv
 import json

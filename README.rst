@@ -10,7 +10,12 @@ Install
 * ``git pull ..repository..``
 * ``pip install -r requirements.txt``
 * ``bower install``
+* Download data: shp and csv for natura, sqlite for corinne
+* Load natura data ``./manage.py runscript natura.load /path/to/natura.shp /path/to/natura/tables/``
+* Load corine data ``./manage.py runscript corine.load /path/to/corine/files/``
+* Create superuser ``./manage.py createsuperuser``
 * ``./manage.py runserver``
+* Open localhost
 
 Loading Data
 ------------
@@ -49,10 +54,13 @@ Optional:
 * ``AWS_ACCESS_KEY_ID``
 * ``AWS_SECRET_ACCESS_KEY``
 
-Data Source
-^^^^^^^^^^^
+Data Sources
+------------
+
 Natura 2000 protected areas.
 http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/66812705cd9b4c4280660e5eb0d8d59c
+
+Download sqlite GIS files and CSV Tables
 
 Corrine Land cover
 ^^^^^^^^^^^^^^^^^^

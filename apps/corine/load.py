@@ -74,7 +74,7 @@ def run(source):
         )
 
         try:
-            patch.geom=feat.geom.wkb
+            patch.geom = feat.geom.wkb
         except GDALException:
             print(
                 'ERROR: Could not set geom for feature (objectid {objid}, counter {count})'

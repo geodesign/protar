@@ -31,6 +31,8 @@ INSTALLED_APPS = (
     'kombu.transport.django',
     'raster',
     'raster_aggregation',
+    'django_extensions',
+    'django_countries',
 
     # Protar apps
     'corine',
@@ -90,7 +92,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # AWS secrets
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', '')
