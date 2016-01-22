@@ -1,5 +1,6 @@
 from django_countries.fields import CountryField
 
+from corine.models import Nomenclature
 from django.contrib.gis.db import models
 
 
@@ -25,7 +26,6 @@ class Site(models.Model):
     country = CountryField(null=True)
     sitetype = models.CharField(max_length=254, choices=SITETYPE_CHOICES)
     geom = models.MultiPolygonField(srid=3035)
-    objects = models.GeoManager()
 
     def __str__(self):
         return self.sitename
@@ -331,3 +331,20 @@ class Species(models.Model):
 
     def __str__(self):
         return '{} -- {}'.format(self.speciesname, self.site.sitecode)
+
+
+class Cover(models.Model):
+    """
+    Land cover of a part of the natura site.
+    """
+    site = models.ForeignKey(Site)
+
+    year = models.IntegerField()
+    nomenclature = models.ForeignKey(Nomenclature)
+    change = models.BooleanField()
+    nomenclature_previous = models.ForeignKey(Nomenclature, null=True, related_name='previous_covers')
+
+    area = models.FloatField()
+
+    def __str__(self):
+        return '{} -- {}'.format(self.site.sitename, self.nomenclature.label_3)

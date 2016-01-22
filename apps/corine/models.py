@@ -37,7 +37,6 @@ class Patch(models.Model):
     shape_area = models.FloatField()
 
     geom = models.PolygonField(srid=3035)
-    objects = models.GeoManager()
 
     class Meta:
         verbose_name_plural = "patches"

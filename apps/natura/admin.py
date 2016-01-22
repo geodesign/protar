@@ -1,12 +1,16 @@
 from django.contrib import admin
 from natura.models import (
-    Bioregion, Contacts, Designationstatus, Directivespecies, Habitatclass, Habitats, Impact, Management, Metadata,
-    Natura2000Sites, Site, Species
+    Bioregion, Contacts, Cover, Designationstatus, Directivespecies, Habitatclass, Habitats, Impact, Management,
+    Metadata, Natura2000Sites, Site, Species
 )
 
 
 class SiteForeignKeyAdmin(admin.ModelAdmin):
     raw_id_fields = ("site",)
+
+
+class CoverForeignKeyAdmin(admin.ModelAdmin):
+    raw_id_fields = ("site", "nomenclature")
 
 admin.site.register(Bioregion, SiteForeignKeyAdmin)
 admin.site.register(Contacts, SiteForeignKeyAdmin)
@@ -20,3 +24,4 @@ admin.site.register(Metadata)
 admin.site.register(Natura2000Sites, SiteForeignKeyAdmin)
 admin.site.register(Site)
 admin.site.register(Species, SiteForeignKeyAdmin)
+admin.site.register(Cover, CoverForeignKeyAdmin)
