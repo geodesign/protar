@@ -10,7 +10,7 @@ class SiteForeignKeyAdmin(admin.ModelAdmin):
 
 
 class CoverForeignKeyAdmin(admin.ModelAdmin):
-    raw_id_fields = ("site", "nomenclature")
+    raw_id_fields = ("site", "nomenclature", "nomenclature_previous")
 
 admin.site.register(Bioregion, SiteForeignKeyAdmin)
 admin.site.register(Contacts, SiteForeignKeyAdmin)
