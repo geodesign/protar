@@ -1,7 +1,7 @@
 from django.contrib import admin
 from natura.models import (
-    Bioregion, Contacts, Cover, Designationstatus, Directivespecies, Habitatclass, Habitats, Impact, Management,
-    Metadata, Natura2000Sites, Site, Species, IntersectionLog
+    Bioregion, Contacts, Cover, Designationstatus, Directivespecies, Habitatclass, Habitats, Impact, IntersectionLog,
+    Management, Metadata, Natura2000Sites, Site, Species
 )
 
 

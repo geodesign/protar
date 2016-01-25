@@ -7,6 +7,8 @@ from corine.models import Nomenclature, Patch
 from corine.scripts import const
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import GDALException
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, WKBWriter
+from django.contrib.gis.geos.error import GEOSException
 
 
 def run():
@@ -15,6 +17,9 @@ def run():
     if not datadir:
         print('Datadir not found, please specify CORINE_DATA_DIRECTORY env var.')
         return
+
+    wkb_w = WKBWriter()
+    wkb_w.outdim = 2
 
     for source in glob.glob(os.path.join(datadir, '*.sqlite')):
         # Detect file content either landcover or landcover change
@@ -82,8 +87,17 @@ def run():
             )
 
             try:
-                patch.geom = feat.geom.wkb
-            except GDALException:
+                # Make sure geom is a multi polygon
+                multi = feat.geom.geos
+                if multi.geom_type != 'MultiPolygon':
+                    multi = MultiPolygon(multi)
+
+                # If necessary, roundtrip through hex writer to drop z dim
+                if multi.hasz:
+                    multi = GEOSGeometry(wkb_w.write_hex(multi))
+
+                patch.geom = multi
+            except (GDALException, GEOSException):
                 print(
                     'ERROR: Could not set geom for feature (objectid {objid}, counter {count})'
                     .format(objid=feat['OBJECTID'], count=counter)
