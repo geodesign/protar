@@ -3,47 +3,18 @@ import glob
 import os
 import re
 
-import patoolib
-import requests
-import tqdm
-
-from corine import const
 from corine.models import Nomenclature, Patch
+from corine.scripts import const
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import GDALException
 
-SOURCE_URLS = (
-    # Land Cover Polygons in sqlite format
-    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc90_Version_18_4.sqlite.rar',
-    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc00_revised_Version_18_4.sqlite.rar',
-    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc06_revised_Version_18_4.sqlite.rar',
-    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc12_Version_18_4.sqlite.rar',
 
-    # Land Cover Change Polygons in sqlite format
-    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha00_Version_18_4.sqlite.rar',
-    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha06_Version_18_4.sqlite.rar',
-    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha12_Version_18_4.sqlite.rar',
-)
-
-
-def run(datadir, download=False, unpack=False):
-
-    if download:
-        for url in SOURCE_URLS:
-            print('Downloading file', url)
-
-            filepath = os.path.join(datadir, os.path.basename(url))
-
-            response = requests.get(url, stream=True)
-
-            with open(filepath, "wb") as handle:
-                for data in tqdm(response.iter_content()):
-                    handle.write(data)
-
-    if unpack:
-        for rarfile in glob.glob(os.path.join(datadir, '*.rar')):
-            print('Unpacking file', rarfile)
-            patoolib.extract_archive(rarfile, outdir=datadir)
+def run():
+    # Get data directory from environment
+    datadir = os.environ.get('CORINE_DATA_DIRECTORY', '')
+    if not datadir:
+        print('Datadir not found, please specify CORINE_DATA_DIRECTORY env var.')
+        return
 
     for source in glob.glob(os.path.join(datadir, '*.sqlite')):
         # Detect file content either landcover or landcover change
@@ -88,7 +59,7 @@ def run(datadir, download=False, unpack=False):
         print('Processing {}data for year {}.'.format('change ' if change else '', year))
 
         # Get full nomenclature from nomenclature app. Convert to dict for speed.
-        nomenclature = {x.code: x.id for x in Nomenclature.objects.all()}
+        nomenclature = {int(x.code): x.id for x in Nomenclature.objects.all()}
 
         # Open datasource
         ds = DataSource(source)

@@ -1,6 +1,6 @@
 import urllib
 
-from corine.load import SOURCE_URLS
+from corine.scripts.const import SOURCE_URLS_18_4
 from django.test import TestCase
 
 
@@ -10,7 +10,7 @@ class CorineTests(TestCase):
         """
         Confirm that all source files are available on servers.
         """
-        for url in SOURCE_URLS:
+        for url in SOURCE_URLS_18_4:
             # All file sources exist
             source = urllib.request.urlopen(url)
             meta = source.info()

@@ -21,6 +21,19 @@ CHANGE_FIELD_MAPPING = {
     'shape_area': 'Shape_Area',
 }
 
+SOURCE_URLS_18_4 = (
+    # Land Cover Polygons in sqlite format
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc90_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc00_revised_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc06_revised_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc12_Version_18_4.sqlite.rar',
+
+    # Land Cover Change Polygons in sqlite format
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha00_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha06_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha12_Version_18_4.sqlite.rar',
+)
+
 # List of source files for vector corine data
 VECTOR_FILES = {
     'full': {
