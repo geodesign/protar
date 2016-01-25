@@ -16,7 +16,7 @@ def run():
         return
 
     # Loat spatial data
-    geosource = glob.glob(os.path.join(datadir, '*.sqlite'))[0]
+    geosource = glob.glob(os.path.join(datadir, '*.shp'))[0]
     print('Loading geosource', geosource)
 
     # Delete existing models before loading data
