@@ -1,109 +1,146 @@
 import datetime
+import glob
 import os
 import re
+
+import patoolib
+import requests
+import tqdm
 
 from corine import const
 from corine.models import Nomenclature, Patch
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import GDALException
 
+SOURCE_URLS = (
+    # Land Cover Polygons in sqlite format
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc90_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc00_revised_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc06_revised_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/clc12_Version_18_4.sqlite.rar',
 
-def run(source):
-    # Detect file content either landcover or landcover change
-    change = re.findall(r'^cha([^\_*\.sqlite]+)', os.path.basename(source))
-    normal = re.findall(r'^clc([^\_*\.sqlite]+)', os.path.basename(source))
+    # Land Cover Change Polygons in sqlite format
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha00_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha06_Version_18_4.sqlite.rar',
+    'https://cws-download.eea.europa.eu/pan-european/clc/vector/sqlite/cha12_Version_18_4.sqlite.rar',
+)
 
-    if len(normal):
-        # Select field mapping for landcover files
-        mapping = const.FIELD_MAPPING
 
-        # Get current year from regex match
-        year = normal[0]
+def run(datadir, download=False, unpack=False):
 
-        # Set change flag
-        change = False
+    if download:
+        for url in SOURCE_URLS:
+            print('Downloading file', url)
 
-    elif len(change):
-        # Select field mapping for change files
-        mapping = const.CHANGE_FIELD_MAPPING
+            filepath = os.path.join(datadir, os.path.basename(url))
 
-        # Get current year from regex match
-        year = change[0]
+            response = requests.get(url, stream=True)
 
-        # Get previous year based on base year
-        previous = const.PREVIOUS_LOOKUP[year]
-        code_previous_mapping = 'code_' + previous
+            with open(filepath, "wb") as handle:
+                for data in tqdm(response.iter_content()):
+                    handle.write(data)
 
-        # Set change flag
-        change = True
+    if unpack:
+        for rarfile in glob.glob(os.path.join(datadir, '*.rar')):
+            print('Unpacking file', rarfile)
+            patoolib.extract_archive(rarfile, outdir=datadir)
 
-    else:
-        raise ValueError('Could not interpret source.')
+    for source in glob.glob(os.path.join(datadir, '*.sqlite')):
+        # Detect file content either landcover or landcover change
+        change = re.findall(r'^cha([^\_*\.sqlite]+)', os.path.basename(source))
+        normal = re.findall(r'^clc([^\_*\.sqlite]+)', os.path.basename(source))
 
-    # Mapping for the landcover code field source
-    code_mapping = 'code_' + year
+        if len(normal):
+            # Select field mapping for landcover files
+            mapping = const.FIELD_MAPPING
 
-    # Convert regex match year to full year
-    year = const.YEAR_MAPPING[year]
+            # Get current year from regex match
+            year = normal[0]
 
-    Patch.objects.filter(year=year, change=change).delete()
+            # Set change flag
+            change = False
 
-    print('Processing {}data for year {}.'.format('change ' if change else '', year))
+        elif len(change):
+            # Select field mapping for change files
+            mapping = const.CHANGE_FIELD_MAPPING
 
-    # Get full nomenclature from nomenclature app. Convert to dict for speed.
-    nomenclature = {x.code: x.id for x in Nomenclature.objects.all()}
+            # Get current year from regex match
+            year = change[0]
 
-    # Open datasource
-    ds = DataSource(source)
-    # Get layer from datasource
-    lyr = ds[0]
+            # Get previous year based on base year
+            previous = const.PREVIOUS_LOOKUP[year]
+            code_previous_mapping = 'code_' + previous
 
-    # Initiate counter and batch array
-    counter = 0
-    batch = []
+            # Set change flag
+            change = True
 
-    # Process features in layer
-    for feat in lyr:
-        counter += 1
+        else:
+            raise ValueError('Could not interpret source.')
 
-        # Create patch instance without commiting
-        patch = Patch(
-            year=year,
-            change=change,
-            nomenclature_id=nomenclature[feat.get(code_mapping)],
-        )
+        # Mapping for the landcover code field source
+        code_mapping = 'code_' + year
 
-        try:
-            patch.geom = feat.geom.wkb
-        except GDALException:
-            print(
-                'ERROR: Could not set geom for feature (objectid {objid}, counter {count})'
-                .format(objid=feat['OBJECTID'], count=counter)
+        # Convert regex match year to full year
+        year = const.YEAR_MAPPING[year]
+
+        Patch.objects.filter(year=year, change=change).delete()
+
+        print('Processing {}data for year {}.'.format('change ' if change else '', year))
+
+        # Get full nomenclature from nomenclature app. Convert to dict for speed.
+        nomenclature = {x.code: x.id for x in Nomenclature.objects.all()}
+
+        # Open datasource
+        ds = DataSource(source)
+        # Get layer from datasource
+        lyr = ds[0]
+
+        # Initiate counter and batch array
+        counter = 0
+        batch = []
+
+        # Process features in layer
+        for feat in lyr:
+            counter += 1
+
+            # Create patch instance without commiting
+            patch = Patch(
+                year=year,
+                change=change,
+                nomenclature_id=nomenclature[feat.get(code_mapping)],
             )
-            continue
 
-        # Set previous landcover for change patches
-        if change:
-            patch.nomenclature_previous_id = nomenclature[feat.get(code_previous_mapping)]
+            try:
+                patch.geom = feat.geom.wkb
+            except GDALException:
+                print(
+                    'ERROR: Could not set geom for feature (objectid {objid}, counter {count})'
+                    .format(objid=feat['OBJECTID'], count=counter)
+                )
+                continue
 
-        # Set fields that are common in both types
-        for k, v in mapping.items():
-            setattr(patch, k, feat.get(v))
+            # Set previous landcover for change patches
+            if change:
+                patch.nomenclature_previous_id = nomenclature[feat.get(code_previous_mapping)]
 
-        # Apppend this patch to batch array
-        batch.append(patch)
+            # Set fields that are common in both types
+            for k, v in mapping.items():
+                setattr(patch, k, feat.get(v))
 
-        if counter % 5000 == 0:
-            # Commit batch to database
+            # Apppend this patch to batch array
+            batch.append(patch)
+
+            if counter % 5000 == 0:
+                # Commit batch to database
+                Patch.objects.bulk_create(batch)
+
+                # Clear batch array
+                batch = []
+
+                # Log progress
+                now = '[{0}]'.format(datetime.datetime.now().strftime('%Y-%m-%d %T'))
+                print('{} Processed {} features'.format(now, counter))
+
+        # Commit remaining patches to database
+        if len(batch):
             Patch.objects.bulk_create(batch)
-
-            # Clear batch array
-            batch = []
-
-            # Log progress
-            now = '[{0}]'.format(datetime.datetime.now().strftime('%Y-%m-%d %T'))
-            print('{} Processed {} features'.format(now, counter))
-
-    # Commit remaining patches to database
-    if len(batch):
-        Patch.objects.bulk_create(batch)

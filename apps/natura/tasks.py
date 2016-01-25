@@ -1,6 +1,6 @@
 import datetime
 
-from celery import shared_task
+from celery import task
 
 from corine.models import Patch
 from django.contrib.gis.db.models.functions import Area, Intersection
@@ -8,7 +8,7 @@ from django.db.models import Sum
 from natura.models import Cover, Site
 
 
-@shared_task
+@task
 def process_sites(sites):
     now = '[{0}]'.format(datetime.datetime.now().strftime('%Y-%m-%d %T'))
     print('{} Processing ids {} ... {}.'.format(now, sites[0], sites[-1]))

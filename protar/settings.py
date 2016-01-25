@@ -149,7 +149,7 @@ COMPRESS_PRECOMPILERS = (
 COMPRESS_OFFLINE = True
 
 # Celery
-BROKER_URL = 'django://'
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 
 # Raster
 RASTER_USE_CELERY = True
