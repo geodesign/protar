@@ -12,6 +12,7 @@ apt-get upgrade -y
 apt-get install -y\
     build-essential\
     git\
+    unrar-free\
     npm\
     python-pip\
     python-dev\
@@ -25,7 +26,8 @@ apt-get install -y\
     libproj-dev\
     libgeos-3.4.2\
     gdal-bin\
-    rabbitmq-server
+    rabbitmq-server\
+    redis-server
 
 # Install npm libraries
 npm install -g requirejs less less-plugin-autoprefix bower

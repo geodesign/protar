@@ -1,5 +1,5 @@
 from corine.models import Patch
-from natura.models import Cover, Site
+from natura.models import Cover, IntersectionLog, Site
 from natura.tasks import process_sites
 
 
@@ -9,6 +9,7 @@ def run():
 
     # Drop current cover objects
     Cover.objects.all().delete()
+    IntersectionLog.objects.all().delete()
 
     print('Processing {} Sites and {} Patches'.format(nr_of_sites, Patch.objects.count()))
 

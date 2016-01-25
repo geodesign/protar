@@ -78,7 +78,7 @@ def run():
             patch = Patch(
                 year=year,
                 change=change,
-                nomenclature_id=nomenclature[feat.get(code_mapping)],
+                nomenclature_id=nomenclature[int(feat.get(code_mapping))],
             )
 
             try:

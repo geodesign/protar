@@ -348,3 +348,18 @@ class Cover(models.Model):
 
     def __str__(self):
         return '{} -- {}'.format(self.site.sitename, self.nomenclature.label_3)
+
+
+class IntersectionLog(models.Model):
+    """
+    Track intersection progress.
+    """
+    site = models.OneToOneField(Site)
+    start = models.DateTimeField(auto_now_add=True)
+    end = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        if self.end:
+            return '{} -- Ended in {}'.format(self.site.sitename, self.end - self.start)
+        else:
+            return '{} -- Ongoing, started at {}'.format(self.site.sitename, self.start)

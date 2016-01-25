@@ -1,7 +1,7 @@
 from django.contrib import admin
 from natura.models import (
     Bioregion, Contacts, Cover, Designationstatus, Directivespecies, Habitatclass, Habitats, Impact, Management,
-    Metadata, Natura2000Sites, Site, Species
+    Metadata, Natura2000Sites, Site, Species, IntersectionLog
 )
 
 
@@ -25,3 +25,4 @@ admin.site.register(Natura2000Sites, SiteForeignKeyAdmin)
 admin.site.register(Site)
 admin.site.register(Species, SiteForeignKeyAdmin)
 admin.site.register(Cover, CoverForeignKeyAdmin)
+admin.site.register(IntersectionLog, SiteForeignKeyAdmin)
