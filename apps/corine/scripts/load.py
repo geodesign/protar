@@ -2,6 +2,7 @@ import datetime
 import glob
 import os
 import re
+import traceback
 
 from corine.models import Nomenclature, Patch
 from corine.scripts import const
@@ -21,7 +22,11 @@ def run():
     wkb_w = WKBWriter()
     wkb_w.outdim = 2
 
-    for source in glob.glob(os.path.join(datadir, '*.sqlite')):
+    sources = sorted(glob.glob(os.path.join(datadir, '*.sqlite')))
+
+    print('Processing files', sources)
+
+    for source in sources:
         # Detect file content either landcover or landcover change
         change = re.findall(r'^cha([^\_*\.sqlite]+)', os.path.basename(source))
         normal = re.findall(r'^clc([^\_*\.sqlite]+)', os.path.basename(source))
@@ -99,8 +104,8 @@ def run():
                 patch.geom = multi
             except (GDALException, GEOSException):
                 print(
-                    'ERROR: Could not set geom for feature (objectid {objid}, counter {count})'
-                    .format(objid=feat['OBJECTID'], count=counter)
+                    'ERROR: Could not set geom for feature (objectid {objid}, counter {count}), \n{trace}'
+                    .format(objid=feat['OBJECTID'], count=counter, trace=traceback.format_exc())
                 )
                 continue
 
