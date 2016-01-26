@@ -111,7 +111,7 @@ def run():
 
             # Set previous landcover for change patches
             if change:
-                patch.nomenclature_previous_id = nomenclature[feat.get(code_previous_mapping)]
+                patch.nomenclature_previous_id = nomenclature[int(feat.get(code_previous_mapping))]
 
             # Set fields that are common in both types
             for k, v in mapping.items():
