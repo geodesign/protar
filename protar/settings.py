@@ -150,6 +150,10 @@ COMPRESS_OFFLINE = True
 
 # Celery
 BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERYD_PREFETCH_MULTIPLIER = 1
+CELERY_ACKS_LATE = True
+if 'CELERYD_CONCURRENCY' in os.environ:
+    CELERYD_CONCURRENCY = os.environ.get('CELERYD_CONCURRENCY')
 
 # Raster
 RASTER_USE_CELERY = True
