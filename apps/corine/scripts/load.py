@@ -2,7 +2,6 @@ import datetime
 import glob
 import os
 import re
-import traceback
 
 from corine.models import Nomenclature, Patch
 from corine.scripts import const
@@ -104,8 +103,8 @@ def run():
                 patch.geom = multi
             except (GDALException, GEOSException):
                 print(
-                    'ERROR: Could not set geom for feature (objectid {objid}, counter {count}), \n{trace}'
-                    .format(objid=feat['OBJECTID'], count=counter, trace=traceback.format_exc())
+                    'ERROR: Could not set geom for feature (objectid {objid}, counter {count})'
+                    .format(objid=feat['OBJECTID'], count=counter)
                 )
                 continue
 
