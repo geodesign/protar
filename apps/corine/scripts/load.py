@@ -103,8 +103,8 @@ def run():
                 patch.geom = multi
             except (GDALException, GEOSException):
                 print(
-                    'ERROR: Could not set geom for feature (objectid {objid}, counter {count})'
-                    .format(objid=feat['OBJECTID'], count=counter)
+                    'ERROR: Could not set geom for feature (objectid {}, id {}, counter {})'
+                    .format(feat['OBJECTID'], feat['ID'], counter)
                 )
                 continue
 

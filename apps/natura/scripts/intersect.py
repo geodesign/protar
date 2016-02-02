@@ -11,10 +11,10 @@ def run():
 
     # Select Natura sites that are not water bodies
     non_water_sites = Site.objects.exclude(
-        Q(habitatclass__habitatcode='N06') & Q(habitatclass__percentagecover__gte=95)
+        Q(habitatclass__habitatcode='N06') & Q(habitatclass__percentagecover=100)
     )
     water_sites = Site.objects.filter(
-        Q(habitatclass__habitatcode='N06') & Q(habitatclass__percentagecover__gte=95)
+        Q(habitatclass__habitatcode='N06') & Q(habitatclass__percentagecover=100)
     )
 
     print('Processing {} Sites and {} Patches'.format(Site.objects.count(), Patch.objects.count()))
@@ -22,7 +22,7 @@ def run():
     # Log how many sites are excluded
     ws_count = water_sites.count()
     if(ws_count > 0):
-        print('Excluded {} sites where inland water bodies are over 95% of its cover.'.format(ws_count))
+        print('Excluded {} sites where inland water bodies are 100% of its cover.'.format(ws_count))
 
     # Set task batch size
     batch_size = 50
