@@ -10,7 +10,7 @@ Install
 * ``git pull ..repository..``
 * ``pip install -r requirements.txt``
 * ``bower install``
-* Download data: shp and csv for natura, sqlite for corinne
+* Download data: shp and csv for Natura2000, sqlite for Corine
 * Load natura data ``./manage.py runscript natura.load /path/to/natura.shp /path/to/natura/tables/``
 * Load corine data ``./manage.py runscript corine.load /path/to/corine/files/``
 * Create superuser ``./manage.py createsuperuser``
@@ -57,7 +57,10 @@ Optional:
 Data Sources
 ------------
 
-Natura 2000 protected areas.
+Natura 2000
+^^^^^^^^^^^
+Protected areas data.
+
 http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/66812705cd9b4c4280660e5eb0d8d59c
 
 Download sqlite GIS files and CSV Tables
@@ -105,6 +108,14 @@ http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/8C25939C-F4CC-443F-852
 Population Density 2000
 http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/F6907877-C585-45DE-B93F-E7FC0975DE2A
 
+NUTS 2013
+^^^^^^^^^
+Reginal boundaries are based on the `Nomenclature of Territorial Units for Statistics (NUTS)`__ for Europe.
+
+http://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units
+
+__ https://en.wikipedia.org/wiki/Nomenclature_of_Territorial_Units_for_Statistics
+
 Base Maps
 ---------
 CartoDB and Stamen collaborated to make beautiful basemaps that are ideal for
@@ -118,7 +129,9 @@ https://github.com/cartodb/cartodb-basemaps
 
 Funding
 -------
-This application has been developed within the MyGEOSS project, which has received funding from the European Union’s Horizon 2020 research and innovation programme.
+This application has been developed within the `MyGEOSS`__ project, which has received funding from the European Union’s Horizon 2020 research and innovation programme.
+
+__ http://digitalearthlab.jrc.ec.europa.eu/mygeoss
 
 Disclaimer
 ------------
