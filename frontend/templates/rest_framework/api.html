@@ -1,0 +1,14 @@
+{% extends "rest_framework/base.html" %}
+{% load compress %}
+
+{% block title%}Protar REST API{% endblock title %}
+
+{% block bootstrap_theme %}
+    {% compress css %}
+        <link rel="stylesheet" href="{{ STATIC_URL }}less/swatchmaker.less" type="text/less"/>
+    {% endcompress css %}
+{% endblock %}
+
+{% block branding %}
+   <a class="navbar-brand" rel="nofollow" href="#">Protar REST API</a> 
+{% endblock %}
