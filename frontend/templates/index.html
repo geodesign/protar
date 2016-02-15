@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
 
-    <title>PROTAR</title>
-    <meta name="description" content="Protected Area Landcover Change Explorer for MyGeoss call.">
+    <title>Change Explorer - Mockup</title>
+    <meta name="description" content="Corine Land Cover Change explorer for Natura 2000 sites.">
 
     {% compress css %}
         <link rel="stylesheet" href="{{ STATIC_URL }}components/leaflet/dist/leaflet.css" type="text/css"/>
@@ -18,40 +18,17 @@
 </head>
 
 <body>
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <a href="/" class="navbar-brand">PROTAR</a>
-        </div>
-        <ul class="nav navbar-nav">
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="themes">Species<span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Turtles</a></li>
-                <li class="divider"></li>
-                <li><a href="#">Bears</a></li>
-                <li><a href="#">Birds</a></li>
-              </ul>
-            </li>
-            <li>
-              <a href="http://digitalearthlab.jrc.ec.europa.eu/mygeoss/index.cfm">MyGeoss</a>
-            </li>
-          </ul>
-    </div>
-</nav>
+    <div id="navbarregion"></div>
+    <div id="appregion" class="container fill"></div>
 
-<div class="container-fluid fill">
-    <div id="appregion"></div>
-</div>
-
-{% compress js %}
-    {% if debug %}
-        <script data-main="{{ STATIC_URL }}js/protar/main" src="{{ STATIC_URL }}components/requirejs/require.js"></script>
-    {% else %}
-        <script src="{{ STATIC_URL }}components/requirejs/require.js"></script>
-        <script src="{{ STATIC_URL }}js/dist.js"></script>
-    {% endif %}
-{% endcompress %}
-
+    {% compress js %}
+        <script language="javascript">var STATIC_URL = "{{ STATIC_URL }}";</script>
+        {% if debug %}
+            <script data-main="{{ STATIC_URL }}js/protar/main" src="{{ STATIC_URL }}components/requirejs/require.js"></script>
+        {% else %}
+            <script src="{{ STATIC_URL }}components/requirejs/require.js"></script>
+            <script src="{{ STATIC_URL }}js/dist.js"></script>
+        {% endif %}
+    {% endcompress %}
 </body>
 </html>
