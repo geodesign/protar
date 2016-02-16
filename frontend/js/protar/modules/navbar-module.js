@@ -1,17 +1,20 @@
 define([
         'marionette',
         'app',
-        'views/navbar-layout'
+        'views/layouts/navbar'
     ],
     function(
         Marionette,
         App,
         NavbarLayoutView
     ){
-    var mapModule = App.module('navbarModule', function(){
-        this.addInitializer(function() {
-            var nav = new NavbarLayoutView();
-            App.navbarRegion.show(nav);
-        });
+        
+    var NavbarModule = Marionette.Object.extend({
+        initialize: function(){
+            this.layout = new NavbarLayoutView();
+            App.rootView.getRegion('navbarRegion').show(this.layout);
+        }
     });
+
+    App.navbarModule = new NavbarModule();
 });

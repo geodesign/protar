@@ -2,7 +2,7 @@ define([
         'marionette',
         'leaflet',
         'app',
-        'views/map-layout'
+        'views/layouts/map'
     ],
     function(
         Marionette,

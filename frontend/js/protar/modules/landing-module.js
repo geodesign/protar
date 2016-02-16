@@ -1,7 +1,7 @@
 define([
         'marionette',
         'app',
-        'views/landing-layout'
+        'views/layouts/landing'
     ],
     function(
         Marionette,

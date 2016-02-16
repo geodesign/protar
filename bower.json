@@ -1,14 +1,16 @@
 {
-    "name": "protar",
-    "dependencies":
-        {
-            "jquery": "2.1.4",
-            "marionette": "2.4.2",
-            "requirejs": "2.1.18",
-            "text": "2.0.14",
-            "leaflet": "0.7.3",
-            "bootstrap": "3.3.5",
-            "chartjs": "~1.0.2",
-            "bootswatch": "3.3.5"
-        }
+  "name": "protar",
+  "dependencies": {
+    "jquery": "2.1.4",
+    "marionette": "2.4.2",
+    "requirejs": "2.1.18",
+    "text": "2.0.14",
+    "leaflet": "0.7.3",
+    "bootstrap": "3.3.5",
+    "chartjs": "2.0.0-beta2",
+    "bootswatch": "3.3.5",
+    "d3": "~3.5.14",
+    "d3-sankey": "*",
+    "moment": "~2.11.2"
+  }
 }

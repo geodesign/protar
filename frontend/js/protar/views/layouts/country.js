@@ -1,6 +1,6 @@
 define([
         'marionette',
-        'text!templates/country-template.html'
+        'text!templates/layouts/country.html'
     ],
     function(
         Marionette,

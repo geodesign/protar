@@ -25,6 +25,8 @@ INSTALLED_APPS = (
     'django.contrib.gis',
 
     # Third party apps
+    'rest_framework',
+    'rest_framework_gis',
     'storages',
     'compressor',
     'celery',
@@ -55,14 +57,18 @@ ROOT_URLCONF = 'protar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'protar/templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend/templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.template.context_processors.static',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -159,3 +165,9 @@ if 'CELERYD_CONCURRENCY' in os.environ:
 # Raster
 RASTER_USE_CELERY = True
 RASTER_WORKDIR = os.environ.get('RASTER_WORKDIR', None)
+
+# Rest framework
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+}

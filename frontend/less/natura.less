@@ -1,0 +1,65 @@
+
+
+.maplayout, #map {
+    width: 100%;
+    height: 100%;
+}
+.doughnut-legend {
+    padding: 0px;
+
+    li {
+        display: block;
+        position: relative;
+        margin-bottom: 4px;
+        border-radius: 5px;
+        cursor: default;
+        -webkit-transition: background-color 200ms ease-in-out;
+        -moz-transition: background-color 200ms ease-in-out;
+        -o-transition: background-color 200ms ease-in-out;
+        transition: background-color 200ms ease-in-out;
+    }
+}
+
+.legend-colorbox {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+
+    rect {
+        width: 20px;
+        height: 20px;
+    }
+
+    &.with-margin{
+        margin-right: 10px;
+    }
+}
+.map {
+    width: 100%;
+    height: 300px;
+}
+
+#sankey {
+height: 500px;
+}
+
+.node rect {
+cursor: move;
+fill-opacity: .9;
+shape-rendering: crispEdges;
+}
+
+.node text {
+pointer-events: none;
+text-shadow: 0 1px 0 #fff;
+}
+
+.link {
+fill: none;
+stroke: #000;
+stroke-opacity: .2;
+}
+
+.link:hover {
+stroke-opacity: .5;
+}
