@@ -16,14 +16,15 @@
 
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-default year" data-year="all">All</button>
-                <% _.each(years, function(year){ %>
-                    <button type="button" class="btn btn-default year <% if(_.max(years) == year){ %>active<% } %>" data-year="<%= year %>"><%= year %></button>
+                <% _.each(years, function(year, idx){ %>
+                    <button type="button" class="btn btn-default year <% if(_.max(years) == year){ %>active<% } %>" data-year="<%= year %>" data-previous="years[idx - 1]"><%= year %></button>
                 <% }); %>
             </div>
             <button type="button" class="btn btn-default change">Change</button>
         </div>
         <div class="col-md-6">
             <canvas id="chart"></canvas>
+            <div id="sankey"></div>
         </div>
         <div class="col-md-6">
             <div class="map"></div>
@@ -31,12 +32,6 @@
     </div>
 
     <hr>
-    <!--<div class="row">-->
-        <!--<div class="col-md-12">-->
-            <!--<h2>Lancover Evolution Sankey Diagram</h2>-->
-        <!--</div>-->
-        <!--<div id="sankey" class="col-md-12"></div>-->
-    <!--</div>-->
     <div class="row">
         <div class="col-md-12">
             <h2>Additional Information</h2>

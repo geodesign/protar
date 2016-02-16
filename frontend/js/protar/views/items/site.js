@@ -22,6 +22,7 @@ define([
             var _this = this;
             // Set default year and landcover classification level
             this.current_year = _.max(this.model.attributes.years);
+            //this.current_year = 2000;
             this.current_level = 3;
 
             // Get complete nomenclatures list
@@ -29,20 +30,19 @@ define([
             this.nomenclatures.fetch().done(function(){
                 _this.createChart();
                 _this.createMap();
-                //_this.createStackedChart();
-                //var data = _this.createLinksNodes();
-                //_this.createSankey(data);
             });
         },
 
         ui: {
             year: 'button.year',
-            level: 'button.level'
+            level: 'button.level',
+            change: 'button.change'
         },
 
         events: {
             'click @ui.year': 'changed',
-            'click @ui.level': 'changed'
+            'click @ui.level': 'changed',
+            'click @ui.change': 'toggle'
         },
 
         createStackedChart: function(){
@@ -207,94 +207,57 @@ define([
             }
         },
 
-        createLinksNodes: function(){
+        createLinksNodesChange: function(){
             var _this = this;
             // Prepare data buckets and access shortcuts
-            var all_covers = this.model.attributes.covers
+            var all_changes = this.model.attributes.covers.filter(function(x){ return x.change; });
             var nodes = [];
             var links = [];
             var node_index = 0;
 
+            var previous_year = this.model.attributes.years[_.indexOf(this.model.attributes.years, this.current_year) - 1];
+
             // Create nodes for all year/nomenclature combinations
             this.nomenclatures.each(function(nom){
-                _.each(_this.model.attributes.years, function(year, idx){
-                    // Only include covers that are present in this site
-                    var covers = all_covers.filter(function(x){ return x.nomenclature == nom.id || x.nomenclature_previous == nom.id; });
-                    if(!covers.length) return;
-                    // Get shortened label
-                    var name = nom.attributes.label_3;
-                    if(name.length > 20) name = name.substr(0, 20) + '...';
+                // Get shortened label
+                var name = nom.attributes.label_3;
+                if(name.length > 20) name = name.substr(0, 20) + '...';
 
-                    nodes.push({id: node_index, nomenclature: nom.id, year: year, name: name  + ' ' + year, color: nom.attributes.color});
+                // Process current year
+                var covers_to = all_changes.filter(function(x){ return x.nomenclature == nom.id && x.year == _this.current_year; });
+                if(covers_to.length){
+                    nodes.push({id: node_index, nomenclature: nom.id, year: _this.current_year, name: name  + ' ' + _this.current_year, color: nom.attributes.color});
                     node_index++;
-                });
+                }
+                // Process previous year
+                var covers_from = all_changes.filter(function(x){ return x.nomenclature_previous == nom.id && x.year == _this.current_year; });
+                if(covers_from.length){
+                    nodes.push({id: node_index, nomenclature: nom.id, year: previous_year, name: name  + ' ' + previous_year, color: nom.attributes.color});
+                    node_index++;
+                }
             });
 
             // Process data by nomenclature
             this.nomenclatures.each(function(nom){
-                // Filter covers by nomenclature
-                var covers = all_covers.filter(function(x){ return !x.change && (x.nomenclature == nom.id) });
-                var cover_changes_to = all_covers.filter(function(x){ return x.change && (x.nomenclature == nom.id) });
-                var cover_changes_from = all_covers.filter(function(x){ return x.change && (x.nomenclature_previous == nom.id) });
 
-                // Return if no cover has been found
-                if(!covers.length) return;
+                var cover_changes = all_changes.filter(function(x){ return x.change && (x.nomenclature == nom.id) });
 
-                // Process years
-                _.each(_this.model.attributes.years, function(year, idx){
-                    // Skip on first year, this is about comparing two years
-                    if(idx == 0) return;
+                if(!cover_changes.length) return;
 
-                    // Get current and previous cover instances
-                    var current = covers.filter(function(x){ return x.year == year; });
-                    var previous = covers.filter(function(x){ return x.year == this.model.attributes.years[idx - 1]; });
+                // Get cover change instances
+                var changes = cover_changes.filter(function(x){ return x.year == _this.current_year });
 
-                    // Get cover change instances
-                    var changes_to = cover_changes_to.filter(function(x){ return x.year == year });
-                    var changes_from = cover_changes_from.filter(function(x){ return x.year == year });
+                // Track to changes
+                _.each(changes, function(change){
+                    // Get nodes
+                    var node_to = _.filter(nodes, function(node){ return node.year == _this.current_year && node.nomenclature == change.nomenclature})[0];
+                    var node_from = _.filter(nodes, function(node){ return node.year == previous_year && node.nomenclature == change.nomenclature_previous})[0];
 
-                    // Extract values from instances, if they exist the current and previous
-                    // cover for this year can only be one.
-                    var current_value = current.length ? current[0].area : 0;
-                    var previous_value = previous.length ? previous[0].area : 0;
-
-                    var balance_to = current_value;
-                    var balance_from = previous_value;
-
-                    // Track to changes
-                    _.each(changes_to, function(change){
-                        // Substract this change from balance
-                        balance_to -= change.area;
-
-                        // Get nodes
-                        var node_to = _.filter(nodes, function(node){ return node.year == year && node.nomenclature == change.nomenclature})[0];
-                        var node_from = _.filter(nodes, function(node){ return node.year == _this.model.attributes.years[idx - 1] && node.nomenclature == change.nomenclature_previous})[0];
-
-                        // Create link for changes
-                        links.push({
-                            source: node_from.id,
-                            target: node_to.id,
-                            value: change.area
-                        });
-                    });
-
-                    // Track from changes
-                    _.each(changes_from, function(change){
-                        // Substract this change from balance
-                        balance_from -= change.area;
-                        // Create link
-                    });
-
-                    // Make consistency check
-                    console.log('Consistency check', balance_from, balance_to, balance_from - balance_to);
-
-                    // Create link for unchanged habitat
-                    var node_to = _.filter(nodes, function(node){ return node.year == year && node.nomenclature == nom.id})[0];
-                    var node_from = _.filter(nodes, function(node){ return node.year == _this.model.attributes.years[idx - 1] && node.nomenclature == nom.id})[0];
+                    // Create link for changes
                     links.push({
                         source: node_from.id,
                         target: node_to.id,
-                        value: balance_from
+                        value: change.area
                     });
                 });
             });
@@ -302,15 +265,19 @@ define([
             return {links: links, nodes: nodes};
         },
 
-        createSankey: function(data){
+        createSankey: function(){
+            var data = this.createLinksNodesChange();
+            // Destroy previous chart
+            if(this.chart) this.chart.destroy();
+
             var margin = {
                 top: 1,
                 right: 1,
                 bottom: 6,
                 left: 1
             };
-            var width = 960 - margin.left - margin.right;
-            var height = 500 - margin.top - margin.bottom;
+            var width = 360 - margin.left - margin.right;
+            var height = 200 - margin.top - margin.bottom;
 
             var formatNumber = d3.format(",.0f");
             var format = function(d) {
@@ -414,6 +381,24 @@ define([
                 this.createStackedChart();
             } else {
                 this.createChart();
+            }
+        },
+
+        toggle: function(e){
+            var el = $(e.target);
+
+            el.toggleClass('active');
+
+            // Skip if element is already selected
+            if(el.hasClass('active')){
+                this.createSankey();
+            } else {
+                // Choose chart type
+                if(this.current_year == 'all'){
+                    this.createStackedChart();
+                } else {
+                    this.createChart();
+                }
             }
         }
     });
