@@ -149,7 +149,8 @@ COMPRESS_PRECOMPILERS = (
 COMPRESS_OFFLINE = True
 
 # Celery
-BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+BROKER_URL = os.environ.get('BROKER_URL', 'amqp://guest:guest@localhost:5672//')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379')
 CELERYD_PREFETCH_MULTIPLIER = 1
 CELERY_ACKS_LATE = True
 if 'CELERYD_CONCURRENCY' in os.environ:
@@ -157,3 +158,4 @@ if 'CELERYD_CONCURRENCY' in os.environ:
 
 # Raster
 RASTER_USE_CELERY = True
+RASTER_WORKDIR = os.environ.get('RASTER_WORKDIR', None)
