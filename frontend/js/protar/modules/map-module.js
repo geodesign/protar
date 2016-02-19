@@ -27,19 +27,19 @@ define([
             start: function() {
                 var layout = new mapLayout();
                 layout.render();
-                App.appRegion.show(layout);
+                App.rootView.getRegion('appRegion').show(layout);
 
-              // Map setup
-              App.LMap = L.map('map', {
+                // Map setup
+                var LMap = L.map('map', {
+                    center: new L.LatLng(54.546579538405034, 18.720703125),
+                    zoom: 4,
+                    minZoom: 0,
+                    maxZoom: 15
+                });
 
-                center: new L.LatLng(54.546579538405034, 18.720703125),
-                zoom: 4,
-                minZoom: 0,
-                maxZoom: 15
-              });
-
-              // Base layer
-              L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png').addTo(App.LMap);
+                // Base layer
+                L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png').addTo(LMap);
+                L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png').addTo(LMap);
             }
         });
 
