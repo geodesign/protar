@@ -22,13 +22,5 @@ node_modules
 # Ignore bower files
 frontend/components
 
-# Test restults and coverage
-.coverage
-
-# Ignore data directory
-data
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+# Docs build
+docs/_build
