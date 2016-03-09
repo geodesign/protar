@@ -1,0 +1,15 @@
+NUTS_FIELD_MAPPING = {
+    'nuts3id': 'NUTS3ID',
+    'nufttp': 'NUFTTP',
+    'n0cd': 'N0CD',
+    'n1cd': 'N1CD',
+    'n2cd': 'N2CD',
+    'n3cd': 'N3CD',
+    'n0nme': 'N0NME',
+    'n0nm': 'N0NM',
+    'n1nm': 'N1NM',
+    'n2nm': 'N2NM',
+    'n3nm': 'N3NM',
+    'n2_3cd': 'N2_3CD',
+    'geom': 'POLYGON',
+}
