@@ -10,7 +10,8 @@ requirejs.config({
         chartjs: '../../components/chartjs/Chart',
         d3: '../../components/d3/d3',
         sankey: '../../components/d3-sankey/sankey/sankey',
-        moment: '../../components/moment/moment'
+        moment: '../../components/moment/moment',
+        typeahead: '../../components/typeahead.js/dist/typeahead.bundle',
     },
     shim: {
         'bootstrap': {
@@ -46,11 +47,12 @@ requirejs.config({
 require([
         'app',
         'bootstrap',
+        'typeahead',
         'modules/navbar-module',
         'modules/landing-module',
         'modules/map-module',
         'modules/natura-module',
-        'modules/country-module'
+        'modules/country-module',
     ], function(
         App
     ){

@@ -1,5 +1,6 @@
-from corine.models import Nomenclature
 from raster.models import Legend, LegendEntry, LegendSemantics
+
+from corine.models import Nomenclature
 
 
 def run():
@@ -9,10 +10,10 @@ def run():
 
     for nom in Nomenclature.objects.all():
         # Skip over entries without color
-        if not num.color:
+        if not nom.color:
             continue
         semantic, created = LegendSemantics.objects.get_or_create(name=nom.label_3[:50])
-        semantic.description = name=nom.label_3
+        semantic.description = nom.label_3
         semantic.save()
         entry, created = LegendEntry.objects.get_or_create(semantics=semantic)
         entry.expression = nom.grid_code

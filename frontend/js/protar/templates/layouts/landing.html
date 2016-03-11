@@ -1,5 +1,5 @@
 <div id="content" class="container">
-    <div class="page-header" id="banner" style="background: url('<%= STATIC_URL %>images/natura2000.png') no-repeat fixed center;">
+    <div class="page-header" id="banner">
         <div class="row">
             <div class="col-sm-12">
                 <h1>Change Explorer</h1>
@@ -8,28 +8,41 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="" style="padding: 50px 0px;">
-                <a href="#map" class="btn btn-success" type="submit">Start Exploring</a>
-                </div>
+                <input type="text" class="form-control typeahead" placeholder="Type to search protected Areas">
+
+                <p>or</p>
+
+                <a href="#map" class="btn btn-success" type="submit">Explore on Map</a>
             </div>
         </div>
     </div>
+    <hr>
     <div class="row">
-        <div class="col-sm-12">
-            <h2>Proposal</h2>
+        <div class="col-sm-8">
+            <h2>Natura 2000</h2>
             <p>
+            A paragraph about natura 2000.
+
             We propose the development of a web-based application where users can explore land cover
             change in protected areas across Europe. The application will quantify the current status and
             historical change in land cover within Europe's natural reserves. An intuitive interface with
             interactive graphs and maps will make this information understandable for everyone.
             </p>
+        </div>
+        <div class="col-sm-4"><img src="<%= STATIC_URL %>images/Natura_2000_logo.png" alt="Nat2000 Image" class="img-rounded landing-img"></div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-4"><img src="<%= STATIC_URL %>images/Corine_land_cover_2000.png" alt="CLC Image" class="img-rounded landing-img"></div>
+        <div class="col-sm-8">
+            <h2>Corine Land Cover</h2>
             <p>
-            The goal is to provide information about what changes occurred within Europe's preserved
-            areas and what their current state is. Over the last two decades Europe has grown one of the
-            largest network of nature reserves in the world, protecting about 18% of land in EU countries.
-            However, not all areas have management plans and there might be differences in enforcement
-            of protection. The proposed application will provide important information to understand the
-            dynamics within the protected areas and their surroundings.
+            A paragraph about Corine Land Cover.
+
+            We propose the development of a web-based application where users can explore land cover
+            change in protected areas across Europe. The application will quantify the current status and
+            historical change in land cover within Europe's natural reserves. An intuitive interface with
+            interactive graphs and maps will make this information understandable for everyone.
             </p>
         </div>
     </div>

@@ -36,7 +36,8 @@ define([
         ui: {
             year: 'button.year',
             level: 'button.level',
-            change: 'button.change'
+            change: 'button.change',
+            map: '.map-container'
         },
 
         events: {
@@ -120,23 +121,23 @@ define([
                     }
                 });
 
-                // Get map dom element of this item view
-                var mapel = _this.$el.find('.map')[0];
-
                 // Instantiate leaflet map, padding by 10%
                 var bounds = site.getBounds().pad(0.1);
 
-                var LMap = L.map(mapel, {
+                var LMap = L.map(_this.ui.map[0], {
                     scrollWheelZoom: false,
                     attributionControl: false,
                     zoomControl: true
                 }).fitBounds(bounds);
+
                 L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
                   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
                 }).addTo(LMap);
+
                 L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png',{
                   attribution: '&CLC EU'
                 }).addTo(LMap);
+
                 LMap.addLayer(site);
             });
         },

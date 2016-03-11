@@ -9,7 +9,7 @@ define([
         LandingLayoutView
     ){
     var mapModule = App.module('landingModule', function(){
-                // Add router to activate this module
+        // Add router to activate this module
         this.Router = Marionette.AppRouter.extend({
             appRoutes: {
                 '': 'start'
@@ -22,9 +22,8 @@ define([
         _.extend(this.Controller.prototype, {
 
             start: function() {
-                var landing = new LandingLayoutView();
-                landing.render();
-                App.appRegion.show(landing);
+                var layout = new LandingLayoutView();
+                App.rootView.getRegion('appRegion').show(layout);
             }
         });
 
