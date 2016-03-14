@@ -1,4 +1,4 @@
-NUTS_FIELD_MAPPING = {
+REGION_FIELD_MAPPING = {
     'fcsubtype' : 'FCsubtype',
     'inspireid' : 'inspireId',
     'beginlifes' : 'beginLifes',

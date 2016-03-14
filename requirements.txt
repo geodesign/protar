@@ -8,6 +8,7 @@ boto==2.38.0
 requests==2.9.1
 xlrd==0.9.4
 redis==2.10.5
+dbf==0.96.005
 
 django-compressor==1.5
 django-storages-redux==1.3

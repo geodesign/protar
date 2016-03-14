@@ -1,4 +1,7 @@
 from django.contrib import admin
-from nuts.models import Nuts
+from nuts.models import Region
 
-admin.site.register(Nuts)
+class SiteForeignKeyAdmin(admin.ModelAdmin):
+    raw_id_fields = ("sites",)
+
+admin.site.register(Region, SiteForeignKeyAdmin)

@@ -1,11 +1,11 @@
 from django_countries.fields import CountryField
 
 from django.contrib.gis.db import models
+from natura.models import Site
 
-class Nuts(models.Model):
+class Region(models.Model):
     """
-    Nomenclature of Territorial Units for Statistics used for regional
-    aggregation.
+    Regions to provide summaries for, for instance Nuts and Country boundaries.
     """
     fcsubtype = models.IntegerField(null=True)
     inspireid = models.CharField(max_length=50, null=True)
@@ -17,37 +17,22 @@ class Nuts(models.Model):
     shn2 = models.CharField(max_length=14, null=True)
     shn3 = models.CharField(max_length=14, null=True)
     shn4 = models.CharField(max_length=14, null=True)
+    name0 = models.TextField(null=True)
+    name1 = models.TextField(null=True)
+    name2 = models.TextField(null=True)
+    name3 = models.TextField(null=True)
     taa = models.IntegerField(null=True)
     shape_leng = models.FloatField(null=True)
     shape_area = models.FloatField(null=True)
     country = CountryField(null=True)
+    sites = models.ManyToManyField(Site)
     level = models.IntegerField(default=3)
-    geom = models.PolygonField()
+    geom = models.MultiPolygonField()
 
     def __str__(self):
-        return self.inspireid
-
-#class Nuts(models.Model):
-    #"""
-    #Nomenclature of Territorial Units for Statistics used for regional
-    #aggregation.
-    #"""
-    #nuts3id = models.FloatField(null=True)
-    #nufttp = models.CharField(max_length=1, null=True)
-    #n0cd = models.CharField(max_length=2)
-    #n1cd = models.CharField(max_length=3, null=True)
-    #n2cd = models.CharField(max_length=4, null=True)
-    #n3cd = models.CharField(max_length=5, null=True)
-    #n0nme = models.CharField(max_length=254)
-    #n0nm = models.CharField(max_length=254)
-    #n1nm = models.CharField(max_length=254, null=True)
-    #n2nm = models.CharField(max_length=254, null=True)
-    #n3nm = models.CharField(max_length=254, null=True)
-    #n2_3cd = models.CharField(max_length=254, null=True)
-    #country = CountryField(null=True)
-    #level = models.IntegerField(default=3)
-    #geom = models.MultiPolygonField(srid=3857)
-
-    #def __str__(self):
-        #print(self.level)
-        #return getattr(self, 'n{}cd'.format(self.level))
+        return 'a'
+        #for i in range(4, -1, -1):
+            #dat = getattr(self, 'shn' + str(i))
+            #if dat:
+                #return dat
+        #return self.country.name

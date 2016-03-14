@@ -1,9 +1,10 @@
 import glob
 import os
+import dbf
 
 from django.contrib.gis.utils import LayerMapping
 from django.db.models import F
-from nuts.models import Nuts
+from nuts.models import Region
 from nuts.scripts import const
 from django.contrib.gis.db.models import Collect, Union
 from django.contrib.gis.geos import MultiPolygon
@@ -16,52 +17,51 @@ def run():
         return
 
     # Loat spatial data
-    geosource = glob.glob(os.path.join(datadir, 'PolbndA.shp'))[0]
+    geosource = os.path.join(datadir, 'PolbndA.shp')
     print('Loading geosource', geosource)
 
     # Delete existing models before loading data
-    #Nuts.objects.all().delete()
+    Region.objects.all().delete()
 
-    ## Use layermapping to load all shapes
-    #lm = LayerMapping(Nuts, geosource, const.NUTS_FIELD_MAPPING)
-    #lm.save(step=1000, progress=True, strict=True)
+    # Use layermapping to load all shapes
+    lm = LayerMapping(Region, geosource, const.REGION_FIELD_MAPPING)
+    lm.save(step=1000, progress=True, strict=True)
 
     # Remove inconsistent boundary artefacts
-    Nuts.objects.filter(icc__icontains='#').delete()
+    Region.objects.filter(icc__icontains='#').delete()
 
     # Copy country code into countryfield table
-    Nuts.objects.all().update(country=F('icc'))
+    Region.objects.all().update(country=F('icc'))
+
+    # Replace NA value with none
+    Region.objects.filter(shn0='N_A').update(shn0=None)
+    Region.objects.filter(shn1='N_A').update(shn1=None)
+    Region.objects.filter(shn2='N_A').update(shn2=None)
+    Region.objects.filter(shn3='N_A').update(shn3=None)
+    Region.objects.filter(shn4='N_A').update(shn4=None)
+
+    # Open table with descriptive names for regions
+    tablesource = os.path.join(datadir, 'EBM_NAM.dbf')
+    table = dbf.Table(tablesource)
+    table.open()
+
+    # Find index for identifier and name
+    shn_index = table.field_names.index('shn')
+    name_index = table.field_names.index('nama')
+
+    # Update objects with names
+    for row in table:
+        nut = None
+        for i in range(4):
+            lookup = {'shn' + str(i): row[shn_index].strip()}
+            nut = Region.objects.filter(**lookup)
+            if nut.exists():
+                data = {'name' + str(i): row[name_index].strip()}
+                nut.update(**data)
 
     # Aggregate geoms by nuts region
-    Nuts.objects.values('country').annotate(Union('geom'))
-    #level1 = Nuts.objects.values('n0cd', 'n0nm', 'n0nme', 'n1cd', 'n1nm', 'country').annotate(Collect('geom'))
-    #level2 = Nuts.objects.values('n0cd', 'n0nm', 'n0nme', 'n1cd', 'n1nm', 'n2cd', 'n2nm', 'country').annotate(Collect('geom'))
-
-#    for reg in level2:
-        #geom = reg['geom__collect']
-        #result = geom[0]
-        #print('---')
-        #for dat in geom:
-            #try:
-                #result = result.union(dat)
-            #except:
-                #import ipdb; ipdb.set_trace()
-        #print(result.wkt[:50], result.valid)
-        #if not isinstance(result, MultiPolygon):
-            #result=MultiPolygon(result)
-        #reg['geom'] = result
-        #del reg['geom__collect']
-        #reg['level'] = 0
-        #Nuts.objects.create(**reg)
-
-    ##for reg in level1:
-        ##reg['geom'] = MultiPolygon(reg['geom__collect'].envelope)
-        ##del reg['geom__collect']
-        ##reg['level'] = 1
-        ##Nuts.objects.create(**reg)
-
-    ##for reg in level2:
-        ##reg['geom'] = MultiPolygon(reg['geom__collect'].envelope)
-        ##del reg['geom__collect']
-        ##reg['level'] = 2
-        ##Nuts.objects.create(**reg)
+    country_boundaries = Region.objects.values('country').annotate(geom=Union('geom'))
+    for boundary in country_boundaries:
+        if not isinstance(boundary['geom'], MultiPolygon):
+            boundary['geom'] = MultiPolygon(boundary['geom'])
+        Region.objects.create(**boundary)
