@@ -60,7 +60,7 @@ accessed `here`__.
 
 __ http://land.copernicus.eu/pan-european/corine-land-cover/clc-2012/
 
-NUTS Statistical Boundaries
+Regional Summary Boundaries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The analysis conducted in Protar intersects the Natura 2000 protected area
 boundaries with the CLC dataset to compute landcover and landcover change

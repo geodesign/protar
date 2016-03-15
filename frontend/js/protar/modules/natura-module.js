@@ -3,6 +3,9 @@ define([
         'leaflet',
         'app',
         'models/site',
+        'models/siteGeo',
+        'models/region',
+        'models/regionGeo',
         'views/layouts/natura',
         'views/items/site'
     ],
@@ -11,6 +14,9 @@ define([
         L,
         App,
         Site,
+        SiteGeo,
+        Region,
+        RegionGeo,
         NaturaLayoutView,
         SiteItemView
     ){
@@ -24,16 +30,28 @@ define([
 
         Router: Marionette.AppRouter.extend({
             appRoutes: {
-                'natura(/:id)(/*name)': 'start'
+                'site/:id(/*name)': 'start_site',
+                'region/:id(/*name)': 'start_region'
             }
         }),
 
         Controller: Marionette.AppRouter.extend({
-            start: function(id, name) {
-                console.log('starting natura module with ', id, name);
-                var site = new Site({id: id});
-                var siteview = new SiteItemView({model: site});
-                site.fetch().done(function(){
+            start_site: function(id){
+                var geo = new SiteGeo({id: id});
+                this.model = new Site({id: id, geom: geo});
+                this.start();
+            },
+
+            start_region: function(id){
+                var geo = new RegionGeo({id: id});
+                this.model = new Region({id: id, geom: geo});
+                this.start();
+            },
+
+            start: function() {
+                var siteview = new SiteItemView({model: this.model});
+
+                this.model.fetch().done(function(){
                     App.rootView.getRegion('appRegion').show(siteview);
                 });
             }

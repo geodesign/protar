@@ -39,7 +39,7 @@ INSTALLED_APPS = (
     # Protar apps
     'corine',
     'natura',
-    'nuts',
+    'regions',
 )
 
 MIDDLEWARE_CLASSES = (

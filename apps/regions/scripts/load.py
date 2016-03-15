@@ -1,19 +1,22 @@
-import glob
 import os
+
 import dbf
 
+from django_countries import countries
+from django.contrib.gis.db.models import Union
+from django.contrib.gis.geos import MultiPolygon
 from django.contrib.gis.utils import LayerMapping
 from django.db.models import F
-from nuts.models import Region
-from nuts.scripts import const
-from django.contrib.gis.db.models import Collect, Union
-from django.contrib.gis.geos import MultiPolygon
+from natura.models import Site
+from regions.models import Region
+from regions.scripts import const
+
 
 def run():
     # Get data directory from environment
-    datadir = os.environ.get('NUTS_DATA_DIRECTORY', '')
+    datadir = os.environ.get('REGIONS_DATA_DIRECTORY', '')
     if not datadir:
-        print('Datadir not found, please specify NUTS_DATA_DIRECTORY env var.')
+        print('Datadir not found, please specify REGIONS_DATA_DIRECTORY env var.')
         return
 
     # Loat spatial data
@@ -42,6 +45,7 @@ def run():
 
     # Open table with descriptive names for regions
     tablesource = os.path.join(datadir, 'EBM_NAM.dbf')
+    print('Loading tabular data from', tablesource)
     table = dbf.Table(tablesource)
     table.open()
 
@@ -51,17 +55,44 @@ def run():
 
     # Update objects with names
     for row in table:
-        nut = None
+        # Get name from now
+        name = row[name_index].strip()
+        # Ignore row if name is NA
+        if name == 'N_A':
+            continue
+        # Update names in region objects
         for i in range(4):
+            # Get identifier as lookup
             lookup = {'shn' + str(i): row[shn_index].strip()}
+            # Get regions for this row
             nut = Region.objects.filter(**lookup)
+            # Write name if region match was found
             if nut.exists():
-                data = {'name' + str(i): row[name_index].strip()}
+                data = {'name' + str(i): name}
                 nut.update(**data)
 
-    # Aggregate geoms by nuts region
+    print('Dissolving regions to create country boundaries.')
+    country_dict = dict(countries)
     country_boundaries = Region.objects.values('country').annotate(geom=Union('geom'))
     for boundary in country_boundaries:
         if not isinstance(boundary['geom'], MultiPolygon):
             boundary['geom'] = MultiPolygon(boundary['geom'])
         Region.objects.create(**boundary)
+
+    print('Computing levels and site intersections.')
+    for reg in Region.objects.all():
+        # Determine level
+        vals = (
+            reg.shn0 is not None, reg.shn1 is not None, reg.shn2 is not None,
+            reg.shn3 is not None, reg.shn4 is not None
+        )
+        reg.level = sum(vals)
+        if reg.level == 0:
+            reg.name0 = reg.country.name
+        reg.save()
+
+        # Filter sites that intersect with region
+        sites = Site.objects.filter(geom__intersects=reg.geom).values_list('id', flat=True)
+
+        # Store sites
+        reg.sites.add(*sites)

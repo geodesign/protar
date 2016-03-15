@@ -29,8 +29,8 @@ define([
             this.nomenclatures = new Nomenclatures();
             this.nomenclatures.fetch().done(function(){
                 _this.createChart();
-                _this.createMap();
             });
+            _this.createMap();
         },
 
         ui: {
@@ -108,8 +108,8 @@ define([
 
         createMap: function(){
             var _this = this;
-            var geo = new SiteGeo({id: this.model.id});
-            geo.fetch().done(function(result){
+            //var geo = new SiteGeo({id: this.model.id});
+            this.model.attributes.geom.fetch().done(function(result){
                 // Get aggregation area geometry from model
                 var site = L.geoJson(result, {
                     style: {

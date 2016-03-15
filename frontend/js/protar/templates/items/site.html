@@ -1,8 +1,12 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
-            <p><%= sitetype %>, <%= country %>, <%= release_date %></p>
+            <% if(typeof sitename == 'undefined'){ %>
+                <h2><%= name %></h2>
+            <% } else { %>
+                <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
+                <p><%= sitetype %>, <%= country %>, <%= release_date %></p>
+            <% } %>
         </div>
     </div>
     <hr>
@@ -30,17 +34,18 @@
             <div class="map-container"></div>
         </div>
     </div>
-
-    <hr>
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Additional Information</h2>
+    <% if(typeof natura2000 != 'undefined'){ %>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Additional Information</h2>
+            </div>
+            <div class="col-md-12">
+                <% if(natura2000.designation){ %><p>DESIGNATION: <%= natura2000.designation %></p><% } %>
+                <% if(natura2000.othercharact){ %><p>OTHER CHARACTERIZATION: <%= natura2000.othercharact %></p><% } %>
+                <% if(natura2000.quality){ %><p>QUALITY: <%= natura2000.quality %></p><% } %>
+                <% if(natura2000.documentation){ %><p>DOCUMENTATION: <%= natura2000.documentation %></p><% } %>
+            </div>
         </div>
-        <div class="col-md-12">
-            <% if(natura2000.designation){ %><p>DESIGNATION: <%= natura2000.designation %></p><% } %>
-            <% if(natura2000.othercharact){ %><p>OTHER CHARACTERIZATION: <%= natura2000.othercharact %></p><% } %>
-            <% if(natura2000.quality){ %><p>QUALITY: <%= natura2000.quality %></p><% } %>
-            <% if(natura2000.documentation){ %><p>DOCUMENTATION: <%= natura2000.documentation %></p><% } %>
-        </div>
-    </div>
+    <% } %>
 </div>
