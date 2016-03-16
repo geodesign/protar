@@ -2,7 +2,6 @@ import os
 
 import dbf
 
-from django_countries import countries
 from django.contrib.gis.db.models import Union
 from django.contrib.gis.geos import MultiPolygon
 from django.contrib.gis.utils import LayerMapping
@@ -33,8 +32,8 @@ def run():
     # Remove inconsistent boundary artefacts
     Region.objects.filter(icc__icontains='#').delete()
 
-    # Copy country code into countryfield table
-    Region.objects.all().update(country=F('icc'))
+    # Remove countries not covered by natura 2000
+    Region.objects.filter(icc__in=['GL', 'NO', 'IS', 'GE', 'CH']).delete()
 
     # Replace NA value with none
     Region.objects.filter(shn0='N_A').update(shn0=None)
@@ -72,24 +71,29 @@ def run():
                 nut.update(**data)
 
     print('Dissolving regions to create country boundaries.')
-    country_dict = dict(countries)
-    country_boundaries = Region.objects.values('country').annotate(geom=Union('geom'))
+    country_boundaries = Region.objects.values('shn0', 'icc').annotate(geom=Union('geom'))
     for boundary in country_boundaries:
         if not isinstance(boundary['geom'], MultiPolygon):
             boundary['geom'] = MultiPolygon(boundary['geom'])
-        Region.objects.create(**boundary)
+        Region.objects.create(level=0, **boundary)
+
+    # Copy country code into countryfield table
+    Region.objects.all().update(country=F('icc'))
 
     print('Computing levels and site intersections.')
     for reg in Region.objects.all():
-        # Determine level
-        vals = (
-            reg.shn0 is not None, reg.shn1 is not None, reg.shn2 is not None,
-            reg.shn3 is not None, reg.shn4 is not None
-        )
-        reg.level = sum(vals)
         if reg.level == 0:
+            # For dissolved areas, add country name as name0
             reg.name0 = reg.country.name
-        reg.save()
+            reg.save()
+        elif(reg.level == -1):
+            # Determine level
+            vals = (
+                reg.shn0 is not None, reg.shn1 is not None, reg.shn2 is not None,
+                reg.shn3 is not None, reg.shn4 is not None
+            )
+            reg.level = sum(vals)
+            reg.save()
 
         # Filter sites that intersect with region
         sites = Site.objects.filter(geom__intersects=reg.geom).values_list('id', flat=True)

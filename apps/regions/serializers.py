@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework_gis.fields import GeometrySerializerMethodField
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from django.db.models import Sum
@@ -14,7 +15,7 @@ class RegionSerializer(serializers.ModelSerializer):
         model = Region
         fields = (
             'id', 'inspireid', 'name0', 'name1', 'name2', 'name3', 'name4',
-            'name', 'country', 'level', 'covers',
+            'name', 'country', 'level', 'covers', 'shn0'
         )
 
     def get_covers(self, obj):
@@ -25,6 +26,11 @@ class RegionSerializer(serializers.ModelSerializer):
 
 
 class RegionGeoSerializer(GeoFeatureModelSerializer):
+    geom = GeometrySerializerMethodField()
+    country = serializers.CharField(source='country.name')
+
+    def get_geom(self, obj):
+        return obj.geom.simplify(0.01, preserve_topology=True)
 
     class Meta:
         model = Region
