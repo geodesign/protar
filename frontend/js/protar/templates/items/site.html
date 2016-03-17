@@ -10,7 +10,7 @@
                 <p><%= name4 %></p>
             <% } else { %>
                 <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
-                <p><%= sitetype %>, <%= country %>, <%= release_date %></p>
+                <p><%= sitetype %>, <%= country %></p>
             <% } %>
         </div>
     </div>
@@ -43,13 +43,24 @@
         <hr>
         <div class="row">
             <div class="col-md-12">
-                <h2>Additional Information</h2>
+                <h3>Additional Information</h3>
             </div>
             <div class="col-md-12">
-                <% if(natura2000.designation){ %><p>DESIGNATION: <%= natura2000.designation %></p><% } %>
-                <% if(natura2000.othercharact){ %><p>OTHER CHARACTERIZATION: <%= natura2000.othercharact %></p><% } %>
-                <% if(natura2000.quality){ %><p>QUALITY: <%= natura2000.quality %></p><% } %>
-                <% if(natura2000.documentation){ %><p>DOCUMENTATION: <%= natura2000.documentation %></p><% } %>
+                <% if(natura2000.designation){ %>
+                <h4>Designation</h4>
+                <p><%= natura2000.designation %></p>
+                <% } %>
+                <% if(natura2000.othercharact){ %>
+                <h4>Characterization</h4>
+                <p><%= natura2000.othercharact %></p>
+                <% } %>
+                <% if(natura2000.quality){ %>
+                <h4>Quality</h4>
+                <p><%= natura2000.quality %></p>
+                <% } %>
+                <% if(natura2000.documentation){ %>
+                <h4>Documentation</h4>
+                <p><%= natura2000.documentation %></p><% } %>
             </div>
         </div>
     <% } %>

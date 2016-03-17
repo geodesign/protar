@@ -283,7 +283,7 @@ define([
                 left: 1
             };
             var width = 560 - margin.left - margin.right;
-            var height = 200 - margin.top - margin.bottom;
+            var height = 500 - margin.top - margin.bottom;
 
             var formatNumber = d3.format(",.0f");
             var format = function(d) {
