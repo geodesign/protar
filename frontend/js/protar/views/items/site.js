@@ -131,11 +131,11 @@ define([
                 }).fitBounds(bounds);
 
                 L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
-                  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
                 }).addTo(LMap);
 
                 L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png',{
-                  attribution: '&CLC EU'
+                    attribution: '&CLC EU'
                 }).addTo(LMap);
 
                 LMap.addLayer(site);
@@ -271,6 +271,8 @@ define([
 
         createSankey: function(){
             var data = this.createLinksNodesChange();
+            if(data.length == 0) return;
+            debugger;
             // Destroy previous chart
             if(this.chart) this.chart.destroy();
 
@@ -280,7 +282,7 @@ define([
                 bottom: 6,
                 left: 1
             };
-            var width = 360 - margin.left - margin.right;
+            var width = 560 - margin.left - margin.right;
             var height = 200 - margin.top - margin.bottom;
 
             var formatNumber = d3.format(",.0f");

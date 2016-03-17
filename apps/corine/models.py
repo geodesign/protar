@@ -1,3 +1,5 @@
+from raster.models import RasterLayer
+
 from django.contrib.gis.db import models
 
 
@@ -39,7 +41,19 @@ class Patch(models.Model):
     geom = models.MultiPolygonField(srid=3035)
 
     class Meta:
-        verbose_name_plural = "patches"
+        verbose_name_plural = 'patches'
 
     def __str__(self):
         return '{} ({}Year {})'.format(self.nomenclature.label_3, 'Change, ' if self.change else '', self.year)
+
+
+class CorineLayer(models.Model):
+    """
+    Corine Raster Layers.
+    """
+    rasterlayer = models.ForeignKey(RasterLayer)
+    year = models.IntegerField()
+    change = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.rasterlayer.name

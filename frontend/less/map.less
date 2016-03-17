@@ -1,4 +1,28 @@
-.maplayout, #map {
+.maplayout {
     width: 100%;
     height: 100%;
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+    // Click transparency for tile layer
+    img.leaflet-tile{
+        pointer-events: none;
+    }
+    #legend {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        .list-group-item {
+            padding: 2px 15px;
+        }
+        .label {
+            margin-right: 10px;
+        }
+    }
+    #layers {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+    }
 }

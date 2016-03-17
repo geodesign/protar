@@ -27,7 +27,6 @@ class RegionSerializer(serializers.ModelSerializer):
 
 class RegionGeoSerializer(GeoFeatureModelSerializer):
     geom = GeometrySerializerMethodField()
-    country = serializers.CharField(source='country.name')
 
     def get_geom(self, obj):
         return obj.geom.simplify(0.01, preserve_topology=True)
@@ -35,4 +34,4 @@ class RegionGeoSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Region
         geo_field = 'geom'
-        fields = ('id', 'country', )
+        fields = ('id', 'name', )

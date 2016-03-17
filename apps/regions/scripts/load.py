@@ -35,6 +35,9 @@ def run():
     # Remove countries not covered by natura 2000
     Region.objects.filter(icc__in=['GL', 'NO', 'IS', 'GE', 'CH']).delete()
 
+    # Remove water areas
+    Region.objects.filter(taa=5).delete()
+
     # Replace NA value with none
     Region.objects.filter(shn0='N_A').update(shn0=None)
     Region.objects.filter(shn1='N_A').update(shn1=None)
@@ -54,7 +57,7 @@ def run():
 
     # Update objects with names
     for row in table:
-        # Get name from now
+        # Get name from row
         name = row[name_index].strip()
         # Ignore row if name is NA
         if name == 'N_A':
@@ -64,11 +67,11 @@ def run():
             # Get identifier as lookup
             lookup = {'shn' + str(i): row[shn_index].strip()}
             # Get regions for this row
-            nut = Region.objects.filter(**lookup)
+            reg = Region.objects.filter(**lookup)
             # Write name if region match was found
-            if nut.exists():
+            if reg.exists():
                 data = {'name' + str(i): name}
-                nut.update(**data)
+                reg.update(**data)
 
     print('Dissolving regions to create country boundaries.')
     country_boundaries = Region.objects.values('shn0', 'icc').annotate(geom=Union('geom'))
@@ -77,22 +80,31 @@ def run():
             boundary['geom'] = MultiPolygon(boundary['geom'])
         Region.objects.create(level=0, **boundary)
 
+    region_boundaries = Region.objects.exclude(level=0).values('shn1', 'name1', 'icc').annotate(geom=Union('geom'))
+    for boundary in region_boundaries:
+        if not isinstance(boundary['geom'], MultiPolygon):
+            boundary['geom'] = MultiPolygon(boundary['geom'])
+        Region.objects.create(level=1, **boundary)
+
     # Copy country code into countryfield table
     Region.objects.all().update(country=F('icc'))
 
     print('Computing levels and site intersections.')
     for reg in Region.objects.all():
-        if reg.level == 0:
+        if reg.level != -1:
             # For dissolved areas, add country name as name0
             reg.name0 = reg.country.name
             reg.save()
-        elif(reg.level == -1):
+        else:
             # Determine level
             vals = (
                 reg.shn0 is not None, reg.shn1 is not None, reg.shn2 is not None,
                 reg.shn3 is not None, reg.shn4 is not None
             )
-            reg.level = sum(vals)
+            level = sum(vals)
+            if level < 2:
+                level = 2
+            reg.level = level
             reg.save()
 
         # Filter sites that intersect with region
