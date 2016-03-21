@@ -15,7 +15,7 @@ class RegionSerializer(serializers.ModelSerializer):
         model = Region
         fields = (
             'id', 'inspireid', 'name0', 'name1', 'name2', 'name3', 'name4',
-            'name', 'country', 'level', 'covers', 'shn0'
+            'name', 'country', 'level', 'covers', 'shn0',
         )
 
     def get_covers(self, obj):

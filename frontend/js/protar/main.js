@@ -7,6 +7,7 @@ requirejs.config({
         marionette: '../../components/marionette/lib/backbone.marionette',
         text: '../../components/text/text',
         leaflet: '../../components/leaflet/dist/leaflet',
+        sync: '../../components/leaflet.sync/L.Map.Sync',
         chartjs: '../../components/chartjs/Chart',
         d3: '../../components/d3/d3',
         sankey: '../../components/d3-sankey/sankey/sankey',
@@ -40,6 +41,9 @@ requirejs.config({
         },
         'sankey': {
             deps: ['d3']
+        },
+        'sync': {
+            deps: ['leaflet']
         }
     }
 });

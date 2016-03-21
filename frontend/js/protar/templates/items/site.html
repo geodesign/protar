@@ -2,65 +2,169 @@
     <div class="row">
         <div class="col-md-12">
             <% if(typeof sitename == 'undefined'){ %>
-                <h2><%= name %></h2>
-                <p><%= name0 %> - <%= shn0 %></p>
-                <p><%= name1 %></p>
-                <p><%= name2 %></p>
-                <p><%= name3 %></p>
-                <p><%= name4 %></p>
+                <h2><%= name %> <small>Region</small></h2>
+                <p><%= name0 %> - <%= name1 %> - <%= name2 %> - <%= name3 %></p>
             <% } else { %>
                 <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
                 <p><%= sitetype %>, <%= country %></p>
             <% } %>
         </div>
     </div>
-    <hr>
     <div class="row">
         <div class="col-md-12">
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-default level" data-level="1">Level 1</button>
-                <button type="button" class="btn btn-default level" data-level="2">Level 2</button>
-                <button type="button" class="btn btn-default level active" data-level="3">Level 3</button>
+            <div class="panel panel-default">
+                <div class="panel-heading">Controls</div>
+                <div class="panel-body">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default level active" data-level="1">Level 1</button>
+                        <button type="button" class="btn btn-default level" data-level="2">Level 2</button>
+                        <button type="button" class="btn btn-default level" data-level="3">Level 3</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default year" data-year="all">All</button>
+                        <% _.each(years, function(year, idx){ %>
+                        <button type="button" class="btn btn-default year <% if(_.max(years) == year){ %>active<% } %>" data-year="<%= year %>" data-previous="years[idx - 1]"><%= year %></button>
+                        <% }); %>
+                    </div>
+                    <!--<button type="button" class="btn btn-default change">Change</button>-->
+                </div>
             </div>
-
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-default year" data-year="all">All</button>
-                <% _.each(years, function(year, idx){ %>
-                    <button type="button" class="btn btn-default year <% if(_.max(years) == year){ %>active<% } %>" data-year="<%= year %>" data-previous="years[idx - 1]"><%= year %></button>
-                <% }); %>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Legend</div>
+                <div class="panel-body">
+                    <div id="legend">Legend Placeholder.</div>
+                </div>
             </div>
-            <button type="button" class="btn btn-default change">Change</button>
         </div>
-        <div class="col-md-6">
-            <canvas id="chart"></canvas>
-            <div id="sankey"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Yearly Summaries</div>
+                <div class="panel-body">
+                    <div class="col-md-3">
+                        <h4>1990</h4>
+                        <canvas id="chart-1990"></canvas>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>2000</h4>
+                        <canvas id="chart-2000"></canvas>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>2006</h4>
+                        <canvas id="chart-2006"></canvas>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>2012</h4>
+                        <canvas id="chart-2012"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6">
-            <div class="map-container"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Yearly Summaries Alternative</div>
+                <div class="panel-body">
+                    <canvas id="barchart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Maps</div>
+                <div class="panel-body">
+                    <div class="col-md-3">
+                        <h4>1990</h4>
+                        <div id="map-1990" class="map"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>2000</h4>
+                        <div id="map-2000" class="map"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>2006</h4>
+                        <div id="map-2006" class="map"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>2012</h4>
+                        <div id="map-2012" class="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Changes 2006-2012 X% of total</div>
+                <div class="panel-body">
+                    <div id="sankey-2012" class="sankey"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Changes 2000-2006 X% of total</div>
+                <div class="panel-body">
+                    <div id="sankey-2006" class="sankey"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Changes 1990-2000 X% of total</div>
+                <div class="panel-body">
+                    <div id="sankey-2000" class="sankey"></div>
+                </div>
+            </div>
         </div>
     </div>
     <% if(typeof natura2000 != 'undefined'){ %>
-        <hr>
         <div class="row">
             <div class="col-md-12">
-                <h3>Additional Information</h3>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Additional Information</div>
+                    <div class="panel-body">
+                        <% if(natura2000.designation){ %>
+                        <h4>Designation</h4>
+                        <p><%= natura2000.designation %></p>
+                        <% } %>
+                        <% if(natura2000.othercharact){ %>
+                        <h4>Characterization</h4>
+                        <p><%= natura2000.othercharact %></p>
+                        <% } %>
+                        <% if(natura2000.quality){ %>
+                        <h4>Quality</h4>
+                        <p><%= natura2000.quality %></p>
+                        <% } %>
+                        <% if(natura2000.documentation){ %>
+                        <h4>Documentation</h4>
+                        <p><%= natura2000.documentation %></p><% } %>
+                    </div>
+                </div>
             </div>
+        </div>
+    <% } else { %>
+        <div class="row">
             <div class="col-md-12">
-                <% if(natura2000.designation){ %>
-                <h4>Designation</h4>
-                <p><%= natura2000.designation %></p>
-                <% } %>
-                <% if(natura2000.othercharact){ %>
-                <h4>Characterization</h4>
-                <p><%= natura2000.othercharact %></p>
-                <% } %>
-                <% if(natura2000.quality){ %>
-                <h4>Quality</h4>
-                <p><%= natura2000.quality %></p>
-                <% } %>
-                <% if(natura2000.documentation){ %>
-                <h4>Documentation</h4>
-                <p><%= natura2000.documentation %></p><% } %>
+                <div class="panel panel-default">
+                    <div class="panel-heading">List of Natura 2000 Sites for this region</div>
+                    <div class="panel-body">
+                        Placeholder - paginated list of sites.
+                    </div>
+                </div>
             </div>
         </div>
     <% } %>

@@ -7,7 +7,10 @@ define([
     ){
     var ItemView = Marionette.ItemView.extend({
         template: _.template(template),
-        className: 'list-group-item'
+        className: 'list-group-item',
+        triggers: {
+            'click': 'clicked'
+        }
     });
     return ItemView;
 });

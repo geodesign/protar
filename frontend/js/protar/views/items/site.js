@@ -5,8 +5,12 @@ define([
         'd3',
         'models/siteGeo',
         'collections/nomenclatures',
+        'collections/layers',
+        'views/collections/legends',
+        'views/collections/layers',
         'text!templates/items/site.html',
-        'sankey'
+        'sankey',
+        'sync'
     ], function(
         Marionette,
         L,
@@ -14,36 +18,212 @@ define([
         d3,
         SiteGeo,
         Nomenclatures,
+        Layers,
+        LegendView,
+        LayersView,
         template
     ){
     var ItemView = Marionette.ItemView.extend({
         template: _.template(template),
+
+        initialize: function(){
+            _.bindAll(this, 'createCharts');
+            this.exclude = [];
+        },
+
         onShow: function(){
             var _this = this;
             // Set default year and landcover classification level
             this.current_year = _.max(this.model.attributes.years);
-            //this.current_year = 2000;
-            this.current_level = 3;
+            this.current_level = 1;
 
             // Get complete nomenclatures list
             this.nomenclatures = new Nomenclatures();
             this.nomenclatures.fetch().done(function(){
-                _this.createChart();
+                _this.createCharts();
             });
-            _this.createMap();
+            _this.createMaps();
+
+            // Basic window resize chart refresh
+            $(window).on("resize", this.createCharts);
         },
 
         ui: {
             year: 'button.year',
             level: 'button.level',
             change: 'button.change',
-            map: '.map-container'
+            legend: '#legend',
+
+            map1990: '#map-1990',
+            map2000: '#map-2000',
+            map2006: '#map-2006',
+            map2012: '#map-2012',
+
+            chart1990: '#chart-1990',
+            chart2000: '#chart-2000',
+            chart2006: '#chart-2006',
+            chart2012: '#chart-2012'
         },
 
         events: {
             'click @ui.year': 'changed',
             'click @ui.level': 'changed',
             'click @ui.change': 'toggle'
+        },
+
+        createCharts: function(exclude){
+            var _this = this;
+            // Add nomenclature data to covers and compute aggregates
+            _this.bindData(exclude);
+
+            // Remove existing charts
+            _.each(this.charts, function(chart){ chart.destroy(); });
+            _.each(this.sankeys, function(svg){ svg.remove(); $('.sankey').html(''); });
+
+            if(this.barchart) this.barchart.destroy();
+
+            // Reset chart arrays
+            this.charts = [];
+            this.sankeys = [];
+
+            // Create new charts
+            _.each([1990, 2000, 2006, 2012], function(year){
+                _this.current_year = year;
+                _this.createChart(year);
+                if(year != 1990) {
+                    _this.createSankey();
+                }
+            });
+            this.createStackedChart();
+
+            if(!exclude) this.createLegend();
+        },
+
+        bindData: function(){
+            var _this = this;
+
+            var data = _.clone(this.model.attributes.covers);
+
+            // Attach nomenclature data to cover elements
+            _.each(data, function(cover){
+                var nom = _this.nomenclatures.filter(function(nom){
+                    return nom.id == cover.nomenclature;
+                })[0];
+
+                cover.code = nom.attributes['code_' + _this.current_level];
+                cover.label = nom.attributes['label_' + _this.current_level];
+                cover.color = nom.attributes.color;
+                cover.code_group = cover.code + '_' + cover.year;
+                cover.change = false;
+                cover.code_full = nom.attributes.code_3;
+
+                if(cover.nomenclature_previous){
+                    var nom = _this.nomenclatures.filter(function(nom){
+                        return nom.id == cover.nomenclature_previous;
+                    })[0];
+                    cover.code_previous = nom.attributes['code_' + _this.current_level];
+                    cover.label_previous = nom.attributes['label_' + _this.current_level];
+                    cover.color_previous = nom.attributes.color;
+                    cover.code_group += '_' + cover.code_previous;
+                    cover.change = true;
+                };
+            });
+
+            // Remove change that stays within category (has effect only on aggregates)
+            data = _.filter(data, function(cover){ return cover.code != cover.code_previous; });
+
+            // Remove excluded elements
+            data = _.filter(data, function(cover){ return _.indexOf(_this.exclude, cover.code) < 0; });
+
+            // Sort data
+            data = _.sortBy(data, 'code_full');
+
+            // Group by code, year and change
+            var cov_groups = _.groupBy(data, 'code_group');
+
+            // Compile aggregate dataset from groups
+            this.aggregates = [];
+            _.each(cov_groups, function(grp){
+                var sum_area = _.reduce(grp, function(memo, cov){
+                    return memo + cov.area;
+                }, 0);
+
+                var dat = _.clone(grp[0]);
+                dat.area = sum_area;
+
+                _this.aggregates.push(dat);
+            });
+            //this.aggregates = _.sortBy(this.aggregates, 'code');
+        },
+
+        createLegend: function(){
+            var _this = this;
+            // Clear current selection array
+            this.exclude = [];
+
+            // Get data for legend
+            var data = _.map(_.indexBy(this.aggregates, 'code'), function(x){
+                return {label: x.label, nom: x.nomenclature, color: x.color, code: x.code};
+            });
+
+            // Instantiate view and collection objects
+            var legend = new Backbone.Collection(data);
+            var nom_view = new LegendView({collection: legend});
+
+            // Bind click event to update interface
+            nom_view.on('childview:clicked', function(view){
+                view.$el.toggleClass('active');
+                var index = _.indexOf(_this.exclude, view.model.attributes.code);
+                if(index < 0) {
+                    _this.exclude.push(view.model.attributes.code);
+                } else {
+                    _this.exclude.pop(index);
+                }
+                _this.createCharts(true);
+            });
+
+            // Render view
+            nom_view.render();
+
+            // Clear current legend and add new one
+            $('#legend').html('');
+            $('#legend').append(nom_view.$el);
+        },
+
+        createChart: function(year){
+            var _this = this;
+
+            // Get data for current year
+            var data = this.aggregates.filter(function(x){return x.year == year && typeof x.code_previous == 'undefined';});
+
+            // Transform data to doughnut format
+            chart_data = {
+                labels: _.pluck(data, 'label'),
+                datasets: [
+                    {
+                        data: _.pluck(data, 'area'),
+                        backgroundColor: _.pluck(data, 'color'),
+                        borderWidth: 0
+                    }
+                ]
+            }
+
+            // Get chart area
+            var ctx = this.ui['chart' + year.toString()].get(0).getContext('2d');
+
+            // Create chart
+            var chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: chart_data,
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    cutoutPercentage: 75
+                }
+            });
+
+            this.charts.push(chart);
         },
 
         createStackedChart: function(){
@@ -58,39 +238,27 @@ define([
                 datasets: []
             };
 
-            // Pick all year/label pairs into single elements
-            var all_data = [];
-            _.each(this.model.attributes.years, function(year){
-                var year_data = _this.extractChartData(year);
-                _.each(year_data.labels, function(dat, idx){
-                    all_data.push({year: year, label: dat, color: year_data.colors[idx], area: year_data.areas[idx]});
+            // Remove changes, not needed for this chart
+            var agg = _.filter(this.aggregates, function(x){ return typeof x.code_previous == 'undefined'});
+
+            // Group by code
+            var agg = _.groupBy(agg, 'code');
+
+            // Create chart dataset
+            _.each(agg, function(val){
+                var set = _.range(data.labels.length);
+                _.each(val, function(x){
+                    var index = _.indexOf(data.labels, x.year);
+                    set[index] = x.area;
                 });
-            });
-
-            // Reduce dataset to unique labels
-            var unique_labels = _.uniq(_.pluck(all_data, 'label'));
-
-            // For each label and year, create subdataset
-            _.each(unique_labels, function(label){
-                var areas = [];
-                _.each(_this.model.attributes.years, function(year){
-                    var dat = _.filter(all_data, function(dat){ return dat.year == year && dat.label == label})[0];
-                    var area = dat ? dat.area : 0;
-                    areas.push(area);
-                });
-
-                // Get first color found for this category
-                var color = _.filter(all_data, function(dat){ return dat.label == label})[0].color;
-
-                // Push data to chart dataset
-                data.datasets.push({label: label, backgroundColor: color, data: areas});
+                data.datasets.push({label: val[0].label, backgroundColor: val[0].color, data: set});
             });
 
             // Get chart area
-            var ctx = this.$el.find("#chart").get(0).getContext('2d');
+            var ctx = this.$el.find("#barchart").get(0).getContext('2d');
 
             // Create chart
-            this.chart = new Chart(ctx, {
+            this.barchart = new Chart(ctx, {
                 type: 'bar',
                 data: data,
                 options: {
@@ -101,189 +269,120 @@ define([
                         yAxes: [{
                                 stacked: true
                         }]
+                    },
+                    legend: {
+                        display: false
                     }
                 }
             });
         },
 
-        createMap: function(){
+        createMaps: function(){
             var _this = this;
-            //var geo = new SiteGeo({id: this.model.id});
-            this.model.attributes.geom.fetch().done(function(result){
-                // Get aggregation area geometry from model
-                var site = L.geoJson(result, {
-                    style: {
-                        weight: 2,
-                        opacity: 0.7,
-                        color: '#333',
-                        fillOpacity: 0.2,
-                        fillColor: '#333'
-                    }
+
+            this.maps = [];
+            this.model.attributes.geom.fetch().done(function(geom_result){
+                var layers = new Layers();
+
+                layers.fetch().done(function(){
+                    layers.each(function(layer){
+                        _this.createMap(layer.attributes.rasterlayer, layer.attributes.year, geom_result)
+                    });
                 });
-
-                // Instantiate leaflet map, padding by 10%
-                var bounds = site.getBounds().pad(0.1);
-
-                var LMap = L.map(_this.ui.map[0], {
-                    scrollWheelZoom: false,
-                    attributionControl: false,
-                    zoomControl: true
-                }).fitBounds(bounds);
-
-                L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-                }).addTo(LMap);
-
-                L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png',{
-                    attribution: '&CLC EU'
-                }).addTo(LMap);
-
-                LMap.addLayer(site);
             });
         },
 
-        createChart: function(){
-            // Create dataset from app state
-            var data = this.extractChartData();
-
-            // Transform data to doughnut format
-            data = {
-                labels: data.labels,
-                datasets: [
-                    {
-                        data: data.areas,
-                        backgroundColor: data.colors
-                    }
-                ]
-            }
-
-            // Destroy previous chart
-            if(this.chart) this.chart.destroy();
-
-            // Get chart area
-            var ctx = this.$el.find("#chart").get(0).getContext('2d');
-
-            // Create chart
-            this.chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: data
-            });
-        },
-
-        extractChartData: function(year){
-            var _this = this;
-
-            // Set year from current if not provided
-            if(!year) year =  _this.current_year;
-
-            // Create data buckets
-            var labels = [];
-            var colors = [];
-            var areas = [];
-
-            // Group nomenclatures by level
-            var noms = this.nomenclatures.groupBy(function(nom){
-                return nom.attributes.code.substr(0, _this.current_level);
-            });
-
-            // Extract aggregate value for this level
-            _.each(noms, function(nom_group){
-                var sum_area = _.reduce(nom_group, function(memo, nom){
-                    var cover = _.filter(_this.model.attributes.covers, function(x){ return !x.change && x.nomenclature == nom.id && x.year == year})[0]
-                    var result = cover ? cover.area : 0;
-                    return memo + result;
-                }, 0);
-
-                if(sum_area){
-                    areas.push(Math.round(sum_area));
-                    // Push level label name
-                    labels.push(nom_group[0].attributes['label_' + _this.current_level]);
-                    // Pick color of first member of this level
-                    colors.push(nom_group[0].attributes.color);
+        createMap: function(id, year, result){
+            // Get aggregation area geometry from model
+            var site = L.geoJson(result, {
+                style: {
+                    weight: 2,
+                    opacity: 0.7,
+                    color: '#333',
+                    fillOpacity: 0.2,
+                    fillColor: '#333'
                 }
             });
 
-            // Construct dataset for chart
-            return {
-                labels: labels,
-                areas: areas,
-                colors: colors
-            }
+            // Get map bounds with 5% padding
+            var bounds = site.getBounds().pad(0.05);
+
+            // Create leaflet map
+            var LMap = L.map(this.ui['map' + year.toString()][0], {
+                scrollWheelZoom: false,
+                attributionControl: false,
+                zoomControl: false
+            }).fitBounds(bounds);
+
+            // Add zoom control to last map on the list
+            if(year == 2012) LMap.addControl(L.control.zoom({position: 'bottomright'}));
+
+            // Sync maps
+            _.each(this.maps, function(map){
+                map.sync(LMap);
+                LMap.sync(map);
+            });
+
+            this.maps.push(LMap);
+
+            L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+            }).addTo(LMap);
+
+            L.tileLayer('/raster/tiles/'+ id.toString() +'/{z}/{x}/{y}.png',{
+                attribution: '&CLC EU'
+            }).addTo(LMap);
+
+            LMap.addLayer(site);
         },
 
         createLinksNodesChange: function(){
             var _this = this;
+
             // Prepare data buckets and access shortcuts
-            var all_changes = this.model.attributes.covers.filter(function(x){ return x.change; });
-            var nodes = [];
+            var nodes = {};
             var links = [];
             var node_index = 0;
-
             var previous_year = this.model.attributes.years[_.indexOf(this.model.attributes.years, this.current_year) - 1];
 
-            // Create nodes for all year/nomenclature combinations
-            this.nomenclatures.each(function(nom){
-                // Get shortened label
-                var name = nom.attributes.label_3;
-                if(name.length > 20) name = name.substr(0, 20) + '...';
-
-                // Process current year
-                var covers_to = all_changes.filter(function(x){ return x.nomenclature == nom.id && x.year == _this.current_year; });
-                if(covers_to.length){
-                    nodes.push({id: node_index, nomenclature: nom.id, year: _this.current_year, name: name  + ' ' + _this.current_year, color: nom.attributes.color});
-                    node_index++;
-                }
-                // Process previous year
-                var covers_from = all_changes.filter(function(x){ return x.nomenclature_previous == nom.id && x.year == _this.current_year; });
-                if(covers_from.length){
-                    nodes.push({id: node_index, nomenclature: nom.id, year: previous_year, name: name  + ' ' + previous_year, color: nom.attributes.color});
-                    node_index++;
-                }
-            });
-
-            // Process data by nomenclature
-            this.nomenclatures.each(function(nom){
-
-                var cover_changes = all_changes.filter(function(x){ return x.change && (x.nomenclature == nom.id) });
-
-                if(!cover_changes.length) return;
-
-                // Get cover change instances
-                var changes = cover_changes.filter(function(x){ return x.year == _this.current_year });
-
-                // Track to changes
-                _.each(changes, function(change){
-                    // Get nodes
-                    var node_to = _.filter(nodes, function(node){ return node.year == _this.current_year && node.nomenclature == change.nomenclature})[0];
-                    var node_from = _.filter(nodes, function(node){ return node.year == previous_year && node.nomenclature == change.nomenclature_previous})[0];
-
-                    // Create link for changes
+            // Use aggregates for chart
+            _.each(this.aggregates.filter(function(x){ return x.change; }), function(agg){
+                // Filter by time
+                if(agg.year == _this.current_year){
+                    // Create target node if it does not exist
+                    var key_to = agg.code + '_' + _this.current_year;
+                    if(!nodes[key_to]) {
+                        nodes[key_to] = {id: node_index, nomenclature: agg.nomenclature, year: _this.current_year, name: agg.label, color: agg.color};
+                        node_index++;
+                    }
+                    // Create origin node if it does not exist
+                    var key_from = agg.code_previous + '_' + previous_year;
+                    if(!nodes[key_from]) {
+                        nodes[key_from] = {id: node_index, nomenclature: agg.nomenclature_previous, year: previous_year, name: agg.label_previous, color: agg.color_previous};
+                        node_index++;
+                    }
+                    // Create link
                     links.push({
-                        source: node_from.id,
-                        target: node_to.id,
-                        value: change.area
+                        source: nodes[key_from].id,
+                        target: nodes[key_to].id,
+                        value: agg.area
                     });
-                });
+                }
             });
 
-            return {links: links, nodes: nodes};
+            return {links: links, nodes: _.values(nodes)};
         },
 
         createSankey: function(){
             var data = this.createLinksNodesChange();
             if(data.length == 0) return;
-            debugger;
+
             // Destroy previous chart
             if(this.chart) this.chart.destroy();
 
-            var margin = {
-                top: 1,
-                right: 1,
-                bottom: 6,
-                left: 1
-            };
-            var width = 560 - margin.left - margin.right;
-            var height = 500 - margin.top - margin.bottom;
+            var margin = 10;
+            var width = $("#sankey-" + this.current_year.toString()).width() - margin - margin;
+            var height = 300 - margin - margin;
 
             var formatNumber = d3.format(",.0f");
             var format = function(d) {
@@ -291,11 +390,11 @@ define([
             }
             color = d3.scale.category20();
 
-            var svg = d3.select("#sankey").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
+            var svg = d3.select("#sankey-" + this.current_year.toString()).append("svg")
+                .attr("width", width + margin + margin)
+                .attr("height", height + margin + margin)
                 .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                .attr("transform", "translate(" + margin + "," + margin + ")");
 
             var sankey = d3.sankey()
                 .nodeWidth(15)
@@ -315,10 +414,10 @@ define([
                 .attr("class", "link")
                 .attr("d", path)
                 .style("stroke-width", function(d) {
-                return Math.max(1, d.dy);
+                    return Math.max(1, d.dy);
                 })
                 .sort(function(a, b) {
-                return b.dy - a.dy;
+                    return b.dy - a.dy;
                 });
 
             link.append("title")
@@ -366,13 +465,15 @@ define([
                 })
                 .attr("x", 6 + sankey.nodeWidth())
                 .attr("text-anchor", "start");
+
+            this.sankeys.push(svg);
         },
 
         changed: function(e){
             var el = $(e.target);
             // Skip if element is already selected
             if(el.hasClass('active')) return;
-            
+
             // Toggle classes
             el.addClass('active').siblings().removeClass('active');
 
@@ -386,7 +487,7 @@ define([
             if(this.current_year == 'all'){
                 this.createStackedChart();
             } else {
-                this.createChart();
+                this.createCharts();
             }
         },
 
