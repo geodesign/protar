@@ -120,9 +120,14 @@ Transfer Application Programming Interface. The API is also publicly
 accessible and provides structured access to the results of the Protar
 analysis. Protar's API root can be found `here`__.
 
+The protar api is setup with Cross- Origin Resource Sharing (CORS) headers
+through the `django-cors-headers`__ app, so it can readily be used from within
+other applications anywhere on the web.
+
 All results are published under the `European Union Public License (EUPL)
 Version 1.1`__.
 
 __ https://en.wikipedia.org/wiki/Representational_state_transfer
 __ http://protar.org/api
+__ https://github.com/ottoyiu/django-cors-headers/
 __ https://github.com/geodesign/protar/blob/master/LICENSE

@@ -16,6 +16,7 @@ django-extensions==1.6.1
 django-filter==0.12.0
 django-countries==3.4.1
 djangorestframework==3.3.2
+django-cors-headers==1.1.0
 Markdown==2.6.5
 #django==1.9.2
 https://github.com/geodesign/django/archive/geodesign_v3.tar.gz

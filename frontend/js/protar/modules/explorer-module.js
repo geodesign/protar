@@ -25,9 +25,15 @@ define([
         _.extend(mod.Controller.prototype, {
 
             start: function() {
+                // Hide app region
+                App.rootView.getRegion('appRegion').$el.hide();
+                // Show explorer region
+                var explorer_region = App.rootView.getRegion('explorerRegion');
+                explorer_region.$el.show();
+                // Render landing page
                 var layout = new mapLayout();
                 layout.render();
-                App.rootView.getRegion('explorerRegion').show(layout);
+                explorer_region.show(layout);
             }
         });
 

@@ -13,6 +13,10 @@ INTERNAL_IPS = ['127.0.0.1']
 
 ALLOWED_HOSTS = ['*']
 
+# Allow all CORS requests for the api
+CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Application definition
 INSTALLED_APPS = (
     # Django apps
@@ -35,6 +39,7 @@ INSTALLED_APPS = (
     'raster_aggregation',
     'django_extensions',
     'django_countries',
+    'corsheaders',
 
     # Protar apps
     'corine',
@@ -44,6 +49,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
