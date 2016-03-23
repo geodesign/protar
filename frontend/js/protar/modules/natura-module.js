@@ -49,10 +49,15 @@ define([
             },
 
             start: function() {
+                // Hide explorer region
+                App.rootView.getRegion('explorerRegion').$el.hide();
+                // Show app region
+                var app_region = App.rootView.getRegion('appRegion');
+                app_region.$el.show();
+                // Render site or region view
                 var siteview = new SiteItemView({model: this.model});
-
                 this.model.fetch().done(function(){
-                    App.rootView.getRegion('appRegion').show(siteview);
+                    app_region.show(siteview);
                 });
             }
         })

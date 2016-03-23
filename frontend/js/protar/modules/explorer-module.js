@@ -2,7 +2,7 @@ define([
         'marionette',
         'leaflet',
         'app',
-        'views/layouts/map'
+        'views/layouts/explorer'
     ],
     function(
         Marionette,
@@ -10,12 +10,12 @@ define([
         App,
         mapLayout
     ){
-    var mapModule = App.module('mapModule', function(mod){
+    var mapModule = App.module('explorerModule', function(mod){
 
         // Add router to activate this module
         mod.Router = Marionette.AppRouter.extend({
             appRoutes: {
-                'map': 'start'
+                'explorer': 'start'
             }
         });
 
@@ -27,7 +27,7 @@ define([
             start: function() {
                 var layout = new mapLayout();
                 layout.render();
-                App.rootView.getRegion('appRegion').show(layout);
+                App.rootView.getRegion('explorerRegion').show(layout);
             }
         });
 

@@ -5,7 +5,7 @@ define([
         'collections/layers',
         'views/collections/legends',
         'views/collections/layers',
-        'text!templates/layouts/map.html'
+        'text!templates/layouts/explorer.html'
     ],
     function(
         Marionette,

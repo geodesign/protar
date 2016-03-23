@@ -15,6 +15,14 @@ define([
             search: '.search-container'
         },
 
+        ui: {
+            navigate_explorer: '.navigate-explorer'
+        },
+
+        triggers: {
+            'click @ui.navigate_explorer': 'navigate:explorer'
+        },
+
         onRender: function(){
             var search = new SearchView();
             search.render();

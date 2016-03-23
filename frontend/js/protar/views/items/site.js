@@ -29,6 +29,7 @@ define([
         initialize: function(){
             _.bindAll(this, 'createCharts');
             this.exclude = [];
+            this.maps = [];
         },
 
         onShow: function(){
@@ -42,7 +43,6 @@ define([
             this.nomenclatures.fetch().done(function(){
                 _this.createCharts();
             });
-            _this.createMaps();
 
             // Basic window resize chart refresh
             $(window).on("resize", this.createCharts);
@@ -67,14 +67,14 @@ define([
 
         events: {
             'click @ui.year': 'changed',
-            'click @ui.level': 'changed',
-            'click @ui.change': 'toggle'
+            'click @ui.level': 'changed'
         },
 
         createCharts: function(exclude){
             var _this = this;
-            // Add nomenclature data to covers and compute aggregates
-            _this.bindData(exclude);
+
+            // Combine nomenclature data to covers and compute aggregates
+            this.bindData();
 
             // Remove existing charts
             _.each(this.charts, function(chart){ chart.destroy(); });
@@ -95,6 +95,7 @@ define([
                 }
             });
             this.createStackedChart();
+            this.createMaps();
 
             if(!exclude) this.createLegend();
         },
@@ -116,6 +117,7 @@ define([
                 cover.code_group = cover.code + '_' + cover.year;
                 cover.change = false;
                 cover.code_full = nom.attributes.code_3;
+                cover.grid_code = nom.attributes.grid_code;
 
                 if(cover.nomenclature_previous){
                     var nom = _this.nomenclatures.filter(function(nom){
@@ -153,21 +155,25 @@ define([
 
                 _this.aggregates.push(dat);
             });
-            //this.aggregates = _.sortBy(this.aggregates, 'code');
+        },
+
+        getUniqueAggregates: function(){
+            var data = {};
+            _.each(this.aggregates, function(agg){
+                if(data[agg.code]) return;
+                data[agg.code] = {label: agg.label, nom: agg.nomenclature, color: agg.color, code: agg.code}
+            });
+            return data;
         },
 
         createLegend: function(){
             var _this = this;
             // Clear current selection array
             this.exclude = [];
-
-            // Get data for legend
-            var data = _.map(_.indexBy(this.aggregates, 'code'), function(x){
-                return {label: x.label, nom: x.nomenclature, color: x.color, code: x.code};
-            });
+            var data = this.getUniqueAggregates();
 
             // Instantiate view and collection objects
-            var legend = new Backbone.Collection(data);
+            var legend = new Backbone.Collection(_.values(data));
             var nom_view = new LegendView({collection: legend});
 
             // Bind click event to update interface
@@ -190,12 +196,33 @@ define([
             $('#legend').append(nom_view.$el);
         },
 
+        createColormap: function(){
+            var _this = this;
+
+            var data = this.getUniqueAggregates();
+            // Create colormap from current aggregate level
+            this.colormap = {};
+            _.each(data, function(agg){
+                // Ignore excluded elements
+                if(_.indexOf(_this.exclude, agg.code) >= 0) return;
+
+                // Get nomenclatures for this aggregate
+                var noms = _this.nomenclatures.filter(function(nom){
+                    return nom.attributes['code_' + _this.current_level] == agg.code;
+                });
+                // Add all grid codes to colormap using a single color from the aggregate
+                _.each(noms, function(nom){
+                    _this.colormap[nom.attributes.grid_code] = agg.color;
+                });
+            });
+            this.colormap_uri = encodeURIComponent(JSON.stringify(this.colormap));
+        },
+
         createChart: function(year){
             var _this = this;
 
             // Get data for current year
             var data = this.aggregates.filter(function(x){return x.year == year && typeof x.code_previous == 'undefined';});
-
             // Transform data to doughnut format
             chart_data = {
                 labels: _.pluck(data, 'label'),
@@ -207,10 +234,8 @@ define([
                     }
                 ]
             }
-
             // Get chart area
             var ctx = this.ui['chart' + year.toString()].get(0).getContext('2d');
-
             // Create chart
             var chart = new Chart(ctx, {
                 type: 'doughnut',
@@ -279,13 +304,18 @@ define([
 
         createMaps: function(){
             var _this = this;
-
+            // Clear any existing maps
+            _.each(this.maps, function(map){ map.remove(); });
+            // Create colormap from current selection
+            this.createColormap();
+            // Fetch geometry for site or region
             this.maps = [];
             this.model.attributes.geom.fetch().done(function(geom_result){
+                // Get corine landcover layers
                 var layers = new Layers();
-
                 layers.fetch().done(function(){
                     layers.each(function(layer){
+                        // Create maps
                         _this.createMap(layer.attributes.rasterlayer, layer.attributes.year, geom_result)
                     });
                 });
@@ -293,6 +323,8 @@ define([
         },
 
         createMap: function(id, year, result){
+            var _this = this;
+
             // Get aggregation area geometry from model
             var site = L.geoJson(result, {
                 style: {
@@ -329,7 +361,8 @@ define([
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
             }).addTo(LMap);
 
-            L.tileLayer('/raster/tiles/'+ id.toString() +'/{z}/{x}/{y}.png',{
+
+            L.tileLayer('/raster/tiles/'+ id.toString() +'/{z}/{x}/{y}.png?colormap=' + this.colormap_uri, {
                 attribution: '&CLC EU'
             }).addTo(LMap);
 
@@ -479,34 +512,12 @@ define([
 
             // Update value
             if(el.hasClass('year')){
-                this.current_year = el.data('year');
+                console.log('Changing year placeholder.', el.data('year'));
             } else {
                 this.current_level = el.data('level');
             }
-            // Choose chart type
-            if(this.current_year == 'all'){
-                this.createStackedChart();
-            } else {
-                this.createCharts();
-            }
-        },
 
-        toggle: function(e){
-            var el = $(e.target);
-
-            el.toggleClass('active');
-
-            // Skip if element is already selected
-            if(el.hasClass('active')){
-                this.createSankey();
-            } else {
-                // Choose chart type
-                if(this.current_year == 'all'){
-                    this.createStackedChart();
-                } else {
-                    this.createChart();
-                }
-            }
+            this.createCharts();
         }
     });
 

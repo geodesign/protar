@@ -54,9 +54,8 @@ require([
         'typeahead',
         'modules/navbar-module',
         'modules/landing-module',
-        'modules/map-module',
-        'modules/natura-module',
-        'modules/country-module',
+        'modules/explorer-module',
+        'modules/natura-module'
     ], function(
         App
     ){

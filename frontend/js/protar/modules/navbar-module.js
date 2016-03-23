@@ -11,8 +11,21 @@ define([
         
     var NavbarModule = Marionette.Object.extend({
         initialize: function(){
-            this.layout = new NavbarLayoutView();
-            App.rootView.getRegion('navbarRegion').show(this.layout);
+            // Render navigation bar
+            var layout = new NavbarLayoutView();
+            App.rootView.getRegion('navbarRegion').show(layout);
+
+            // Bind to navigation event from navbar
+            layout.on('navigate:explorer', function(){
+                // Hide app region
+                App.rootView.getRegion('appRegion').$el.hide();
+                // Show explorer region
+                var explorer_region = App.rootView.getRegion('explorerRegion');
+                explorer_region.$el.show();
+                // Render explorer if necessary
+                var triger_rendering = !explorer_region.hasView();
+                Backbone.history.navigate('explorer', {trigger: triger_rendering});
+            });
         }
     });
 
