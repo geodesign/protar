@@ -1,4 +1,6 @@
 from rest_framework import filters, mixins, viewsets
+from rest_framework_gis.filters import InBBoxFilter
+from rest_framework_gis.pagination import GeoJsonPagination
 
 from natura.models import Site
 from natura.serializers import SiteGeoSerializer, SiteSerializer
@@ -12,6 +14,10 @@ class SiteViewSet(viewsets.ReadOnlyModelViewSet):
     filter_fields = ('country', )
 
 
-class SiteGeoViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
-    queryset = Site.objects.all()
+class SiteGeoViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Site.objects.all().order_by('id')
     serializer_class = SiteGeoSerializer
+    filter_backends = (filters.DjangoFilterBackend, InBBoxFilter, )
+    pagination_class = GeoJsonPagination
+    bbox_filter_include_overlapping = True
+    bbox_filter_field = 'geom'

@@ -21,3 +21,4 @@ class RegionGeoViewSet(viewsets.ReadOnlyModelViewSet):
     filter_fields = ('country', 'level', )
     pagination_class = GeoJsonPagination
     bbox_filter_include_overlapping = True
+    bbox_filter_field = 'geom'
