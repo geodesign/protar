@@ -3,6 +3,7 @@ define([
         'collections/regionsGeo',
         'collections/nomenclatures',
         'collections/layers',
+        'collections/sitesGeo',
         'views/collections/legends',
         'views/collections/layers',
         'text!templates/layouts/explorer.html'
@@ -12,6 +13,7 @@ define([
         Regions,
         Nomenclatures,
         Layers,
+        Sites,
         LegendView,
         LayersView,
         template
@@ -28,7 +30,7 @@ define([
         },
 
         initialize: function(){
-            _.bindAll(this, 'createLegend');
+            _.bindAll(this, 'createLegend', 'updateMap');
         },
 
         onShow: function(){
@@ -59,15 +61,19 @@ define([
             this.LMap.getPanes().overlayPane.appendChild(labelmap.getContainer());
             labelmap.setZIndex(9999);
 
-            this.regions_layer = L.geoJson(null, {
-                style: {
-                    weight: 2,
-                    opacity: 0.7,
-                    color: '#333',
-                    fillOpacity: 0.2,
-                    fillColor: '#333'
-                }
-            }).addTo(this.LMap);
+            // Bind zoomend to update layer
+            this.LMap.on('moveend', this.updateMap);
+
+            var style = {
+                weight: 2,
+                opacity: 0.7,
+                color: '#333',
+                fillOpacity: 0.2,
+                fillColor: '#333'
+            };
+
+            this.regions_layer = L.geoJson(null, {style: style}).addTo(this.LMap);
+            this.sites_layer = L.geoJson(null, {style: style});
 
             this.nomenclatures = new Nomenclatures();
             this.nomenclatures.fetch().done(this.createLegend);
@@ -77,13 +83,19 @@ define([
         },
 
         getRegions: function(page){
-            page = page ? page : 1;
-            //
-
             var _this = this;
-            var regions = new Regions();
-            var params = {data: $.param({level: 0, page: page})};
+            page = page ? page : 1;
 
+            // Setup search parameters
+            var params = {
+                level: 0,
+                page: page,
+                in_bbox: this.LMap.getBounds().toBBoxString()
+            };
+            params = {data: $.param(params)};
+
+            // Create regions collection and fetch data
+            var regions = new Regions();
             regions.fetch(params).done(function(data){
                 // Add this page's data to regions layer.
                 _this.regions_layer.addData(data);
@@ -96,6 +108,37 @@ define([
                         // Add interactivity when all regions are loaded
                         layer.on('click', function(){
                             Backbone.history.navigate('region/' + this.feature.id, {trigger: true});
+                        });
+                    });
+                }
+            });
+        },
+
+        getSites: function(page){
+            var _this = this;
+            page = page ? page : 1;
+
+            // Setup search parameters
+            var params = {
+                page: page,
+                in_bbox: this.LMap.getBounds().toBBoxString()
+            };
+            params = {data: $.param(params)};
+
+            // Create regions collection and fetch data
+            var sites = new Sites();
+            sites.fetch(params).done(function(data){
+                // Add this page's data to regions layer.
+                _this.sites_layer.addData(data);
+
+                // Recursively get next page if exists.
+                if(data.next){
+                    _this.getSites(page + 1);
+                } else {
+                    _this.sites_layer.eachLayer(function(layer){
+                        // Add interactivity when all regions are loaded
+                        layer.on('click', function(){
+                            Backbone.history.navigate('site/' + this.feature.id, {trigger: true});
                         });
                     });
                 }
@@ -123,6 +166,22 @@ define([
             var lyr_view = new LayersView({collection: lyrs});
             lyrs.fetch();
             this.getRegion('layers').show(lyr_view);
+        },
+
+        updateMap: function(){
+            console.log('mooveeend', this.LMap.getZoom(), this.LMap.getBounds().toBBoxString());
+            if(this.LMap.getZoom() < 10) {
+                if(this.LMap.hasLayer(this.sites_layer)){
+                    this.LMap.removeLayer(this.sites_layer);
+                    this.LMap.addLayer(this.regions_layer);
+                }
+            } else {
+                if(this.LMap.hasLayer(this.regions_layer)) {
+                    this.LMap.removeLayer(this.regions_layer);
+                    this.LMap.addLayer(this.sites_layer);
+                    this.getSites();
+                }
+            }
         }
     });
 
