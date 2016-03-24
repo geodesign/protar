@@ -30,6 +30,7 @@ class Region(models.Model):
     sites = models.ManyToManyField(Site)
     level = models.IntegerField(default=-1)
     geom = models.MultiPolygonField()
+    centroid = models.PointField(null=True)
 
     def __str__(self):
         return self.name

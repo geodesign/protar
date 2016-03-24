@@ -26,6 +26,7 @@ class Site(models.Model):
     country = CountryField(null=True)
     sitetype = models.CharField(max_length=254, choices=SITETYPE_CHOICES)
     geom = models.MultiPolygonField(srid=3035)
+    centroid = models.PointField(null=True)
 
     def __str__(self):
         return self.sitename

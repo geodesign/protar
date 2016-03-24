@@ -31,6 +31,8 @@ define([
 
         initialize: function(){
             _.bindAll(this, 'createLegend', 'updateMap');
+            this.site_layer_min_zoom = 10;
+            this.region_layer_level_1_min_zoom = 6;
         },
 
         onShow: function(){
@@ -39,7 +41,7 @@ define([
             // Map setup
             this.LMap = L.map(this.ui.map[0], {
                 center: new L.LatLng(54.546579538405034, 18.720703125),
-                zoom: 4,
+                zoom: 6,
                 minZoom: 0,
                 maxZoom: 15
             });
@@ -50,6 +52,15 @@ define([
             }).addTo(this.LMap);
 
             L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png').addTo(this.LMap);
+
+            basemap.on('tileload', function(e){
+                var tile = e.url.match(/\d+/g).join('/');
+                if(_this.LMap.getZoom() > this.site_layer_min_zoom) {
+                    _this.getSites(tile);
+                } else { 
+                    _this.getRegions(tile);
+                }
+            });
 
             // Labelmap with streets
             var labelmap = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png',{
@@ -62,7 +73,7 @@ define([
             labelmap.setZIndex(9999);
 
             // Bind zoomend to update layer
-            this.LMap.on('moveend', this.updateMap);
+            this.LMap.on('mooveend', this.updateMap);
 
             var style = {
                 weight: 2,
@@ -72,25 +83,34 @@ define([
                 fillColor: '#333'
             };
 
+            // Create empty vector layers to add data to
             this.regions_layer = L.geoJson(null, {style: style}).addTo(this.LMap);
             this.sites_layer = L.geoJson(null, {style: style});
 
+            // Instantiate Legend and layer switcher
             this.nomenclatures = new Nomenclatures();
             this.nomenclatures.fetch().done(this.createLegend);
 
-            this.getRegions();
             this.createLayerSwitcher();
+
+            // Create initial map setup
+            this.updateMap();
         },
 
-        getRegions: function(page){
+        getRegions: function(tile, page){
+            console.log('Getting regions', page, tile);
             var _this = this;
             page = page ? page : 1;
 
+            // Compute region detail level from zoom
+            var level = this.LMap.getZoom() < 6 ? 0 : 1;
+
+
             // Setup search parameters
             var params = {
-                level: 0,
+                level: level,
                 page: page,
-                in_bbox: this.LMap.getBounds().toBBoxString()
+                tile: tile
             };
             params = {data: $.param(params)};
 
@@ -102,7 +122,7 @@ define([
 
                 // Recursively get next page if exists.
                 if(data.next){
-                    _this.getRegions(page + 1);
+                    _this.getRegions(tile, page + 1);
                 } else {
                     _this.regions_layer.eachLayer(function(layer){
                         // Add interactivity when all regions are loaded
@@ -114,14 +134,15 @@ define([
             });
         },
 
-        getSites: function(page){
+        getSites: function(tile, page){
+            console.log('Getting sites', page, tile);
             var _this = this;
             page = page ? page : 1;
 
             // Setup search parameters
             var params = {
                 page: page,
-                in_bbox: this.LMap.getBounds().toBBoxString()
+                tile: tile
             };
             params = {data: $.param(params)};
 
@@ -133,7 +154,7 @@ define([
 
                 // Recursively get next page if exists.
                 if(data.next){
-                    _this.getSites(page + 1);
+                    _this.getSites(tile, page + 1);
                 } else {
                     _this.sites_layer.eachLayer(function(layer){
                         // Add interactivity when all regions are loaded
@@ -173,13 +194,16 @@ define([
             if(this.LMap.getZoom() < 10) {
                 if(this.LMap.hasLayer(this.sites_layer)){
                     this.LMap.removeLayer(this.sites_layer);
+                }
+                if(!this.LMap.hasLayer(this.regions_layer)){
                     this.LMap.addLayer(this.regions_layer);
                 }
             } else {
+                if(!this.LMap.hasLayer(this.sites_layer)){
+                    this.LMap.addLayer(this.sites_layer);
+                }
                 if(this.LMap.hasLayer(this.regions_layer)) {
                     this.LMap.removeLayer(this.regions_layer);
-                    this.LMap.addLayer(this.sites_layer);
-                    this.getSites();
                 }
             }
         }

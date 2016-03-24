@@ -2,6 +2,7 @@ import csv
 import glob
 import os
 
+from django.contrib.gis.db.models.functions import Centroid, Transform
 from django.contrib.gis.utils import LayerMapping
 from django.db.models import F
 from natura import models
@@ -94,3 +95,5 @@ def run():
 
         # Commit remaining objects to database
         model.objects.bulk_create(batch)
+
+    models.Site.objects.update(centroid=Centroid(Transform('geom', 4326)))

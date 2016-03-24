@@ -3,6 +3,7 @@ import os
 import dbf
 
 from django.contrib.gis.db.models import Union
+from django.contrib.gis.db.models.functions import Centroid
 from django.contrib.gis.geos import MultiPolygon
 from django.contrib.gis.utils import LayerMapping
 from django.db.models import F
@@ -112,3 +113,5 @@ def run():
 
         # Store sites
         reg.sites.add(*sites)
+
+    Region.objects.all().update(centroid=Centroid('geom'))

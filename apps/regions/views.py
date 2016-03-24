@@ -1,5 +1,5 @@
 from rest_framework import filters, viewsets
-from rest_framework_gis.filters import InBBoxFilter
+from rest_framework_gis.filters import TMSTileFilter
 from rest_framework_gis.pagination import GeoJsonPagination
 
 from regions.models import Region
@@ -17,8 +17,8 @@ class RegionViewSet(viewsets.ReadOnlyModelViewSet):
 class RegionGeoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Region.objects.all().order_by('id')
     serializer_class = RegionGeoSerializer
-    filter_backends = (filters.DjangoFilterBackend, InBBoxFilter, )
+    filter_backends = (filters.DjangoFilterBackend, TMSTileFilter, )
     filter_fields = ('country', 'level', )
     pagination_class = GeoJsonPagination
     bbox_filter_include_overlapping = True
-    bbox_filter_field = 'geom'
+    bbox_filter_field = 'centroid'
