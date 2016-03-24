@@ -7,7 +7,7 @@ define([
         'models/region',
         'models/regionGeo',
         'views/layouts/natura',
-        'views/items/site'
+        'views/items/natura'
     ],
     function(
         Marionette,
@@ -18,7 +18,7 @@ define([
         Region,
         RegionGeo,
         NaturaLayoutView,
-        SiteItemView
+        NaturaItemView
     ){
 
     var NaturaModule = Marionette.Object.extend({
@@ -55,7 +55,7 @@ define([
                 var app_region = App.rootView.getRegion('appRegion');
                 app_region.$el.show();
                 // Render site or region view
-                var siteview = new SiteItemView({model: this.model});
+                var siteview = new NaturaItemView({model: this.model});
                 this.model.fetch().done(function(){
                     app_region.show(siteview);
                 });

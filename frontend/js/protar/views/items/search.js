@@ -17,6 +17,7 @@ define([
         },
 
         onShow: function(){
+            var _this = this;
             // Instantiate suggestion engine using sites api.
             var sites = new Bloodhound({
                 datumTokenizer: Bloodhound.tokenizers.obj.whitespace('sitecode'),
@@ -69,12 +70,16 @@ define([
 
             // Bind select event to navigate to site.
             this.ui.input.bind('typeahead:select', function(ev, suggestion) {
+                // Decide if a site or a region was selected
                 if(typeof suggestion.inspireid == 'undefined'){
                     var urlbase = 'site/';
                 } else {
                     var urlbase = 'region/';
                 }
+                // Navigate to page
                 Backbone.history.navigate(urlbase + suggestion.id, {trigger: true});
+                // Reset value on search field
+                _this.ui.input.typeahead('val', '');
             });
         }
     });

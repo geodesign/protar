@@ -27,6 +27,10 @@ define([
             layers: '#layers'
         },
 
+        initialize: function(){
+            _.bindAll(this, 'createLegend');
+        },
+
         onShow: function(){
             var _this = this;
 
@@ -65,9 +69,10 @@ define([
                 }
             }).addTo(this.LMap);
 
+            this.nomenclatures = new Nomenclatures();
+            this.nomenclatures.fetch().done(this.createLegend);
 
             this.getRegions();
-            this.createLegend();
             this.createLayerSwitcher();
         },
 
@@ -98,10 +103,19 @@ define([
         },
 
         createLegend: function(){
-            var nom = new Nomenclatures();
-            var nom_view = new LegendView({collection: nom});
-            nom.fetch();
-            this.getRegion('legend').show(nom_view);
+            var current_level = 2;
+            // Make sure nomenclatures are sorted
+            this.nomenclatures.sortBy('code_3');
+            // Attach label attribute based on level
+            this.nomenclatures.each(function(nom){ nom.attributes.label = nom.attributes['label_' + current_level]; });
+            // Group by code and pick first element of each group (assumes preordering)
+            var level_noms = this.nomenclatures.groupBy('code_' + current_level);
+            level_noms = _.map(level_noms, function(group){ return group[0]});
+            // Convert list to collection
+            level_noms = new Backbone.Collection(level_noms);
+            // Create and show legend view
+            var noms_view = new LegendView({collection: level_noms});
+            this.getRegion('legend').show(noms_view);
         },
 
         createLayerSwitcher: function(){
