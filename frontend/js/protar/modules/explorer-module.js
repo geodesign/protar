@@ -30,10 +30,12 @@ define([
                 // Show explorer region
                 var explorer_region = App.rootView.getRegion('explorerRegion');
                 explorer_region.$el.show();
-                // Render landing page
-                var layout = new mapLayout();
-                layout.render();
-                explorer_region.show(layout);
+                // Render landing page if view not set already
+                if(!explorer_region.hasView()){
+                    var layout = new mapLayout();
+                    layout.render();
+                    explorer_region.show(layout);
+                }
             }
         });
 
