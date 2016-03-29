@@ -15,7 +15,7 @@ def run():
 
     print('Creating nomenclature.')
     # Open clc legend file
-    legend = glob.glob(os.path.join(datadir, '*/clc_legend.xls'))[0]
+    legend = glob.glob(os.path.join(datadir, '*clc_legend.xls'))[0]
     workbook = xlrd.open_workbook(legend)
 
     # Get first sheet from xls file
