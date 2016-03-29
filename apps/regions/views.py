@@ -15,10 +15,16 @@ class RegionViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RegionGeoViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Region.objects.all().order_by('id')
     serializer_class = RegionGeoSerializer
     filter_backends = (filters.DjangoFilterBackend, TMSTileFilter, )
     filter_fields = ('country', 'level', )
     pagination_class = GeoJsonPagination
     bbox_filter_include_overlapping = True
     bbox_filter_field = 'centroid'
+
+    def get_queryset(self):
+        queryset = Region.objects.all().order_by('id')
+        exclude = self.request.query_params.get('exclude', '')
+        if exclude:
+            queryset.exclude(id__in=exclude.split(','))
+        return queryset

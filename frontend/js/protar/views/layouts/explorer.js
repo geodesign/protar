@@ -31,8 +31,10 @@ define([
 
         initialize: function(){
             _.bindAll(this, 'createLegend', 'updateMap');
-            this.site_layer_min_zoom = 10;
-            this.region_layer_level_1_min_zoom = 6;
+            this.sites_layer_min_zoom = 9;
+            this.regions_layer_min_zoom = 7;
+            this.regions_fetched = {0: [], 1: []};
+            this.sites_fetched = [];
         },
 
         onShow: function(){
@@ -41,7 +43,7 @@ define([
             // Map setup
             this.LMap = L.map(this.ui.map[0], {
                 center: new L.LatLng(54.546579538405034, 18.720703125),
-                zoom: 6,
+                zoom: 7,
                 minZoom: 0,
                 maxZoom: 15
             });
@@ -53,12 +55,17 @@ define([
 
             L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png').addTo(this.LMap);
 
+            // Bind zoomend to update layer
+            this.LMap.on('zoomend', this.updateMap);
+
             basemap.on('tileload', function(e){
-                var tile = e.url.match(/\d+/g).join('/');
-                if(_this.LMap.getZoom() > this.site_layer_min_zoom) {
-                    _this.getSites(tile);
-                } else { 
-                    _this.getRegions(tile);
+                var tile_values = e.url.match(/\d+/g);
+                var tile_zoom = parseInt(tile_values[0]);
+                var tile_lookup = tile_values.join('/');
+                if(tile_zoom > _this.sites_layer_min_zoom) {
+                    _this.getSites(tile_lookup);
+                } else {
+                    _this.getRegions(tile_lookup, tile_zoom);
                 }
             });
 
@@ -72,59 +79,84 @@ define([
             this.LMap.getPanes().overlayPane.appendChild(labelmap.getContainer());
             labelmap.setZIndex(9999);
 
-            // Bind zoomend to update layer
-            this.LMap.on('mooveend', this.updateMap);
-
             var style = {
-                weight: 2,
+                weight: 1.5,
                 opacity: 0.7,
                 color: '#333',
-                fillOpacity: 0.2,
-                fillColor: '#333'
+                fillOpacity: 0.0
             };
 
             // Create empty vector layers to add data to
-            this.regions_layer = L.geoJson(null, {style: style}).addTo(this.LMap);
-            this.sites_layer = L.geoJson(null, {style: style});
+            this.country_layer = L.geoJson(null, {
+                style: style
+            }).addTo(this.LMap);
+
+            this.regions_layer = L.geoJson(null, {
+                style: style
+            }).addTo(this.LMap);
+
+            this.sites_layer = L.geoJson(null, {
+                style: style
+            }).addTo(this.LMap);
+
+            var mouseover = function(e){ e.layer.setStyle({fillOpacity: 0.2})};
+            var mouseout = function(e){ e.layer.setStyle({fillOpacity: 0})};
+
+            this.country_layer.on('mouseover', mouseover);
+            this.country_layer.on('mouseout', mouseout);
+
+            this.regions_layer.on('mouseover', mouseover);
+            this.regions_layer.on('mouseout', mouseout);
+
+            this.sites_layer.on('mouseover', mouseover);
+            this.sites_layer.on('mouseout', mouseout);
 
             // Instantiate Legend and layer switcher
             this.nomenclatures = new Nomenclatures();
             this.nomenclatures.fetch().done(this.createLegend);
 
             this.createLayerSwitcher();
-
-            // Create initial map setup
-            this.updateMap();
         },
 
-        getRegions: function(tile, page){
-            console.log('Getting regions', page, tile);
+        getRegions: function(tile, zoom, page, exclude){
             var _this = this;
             page = page ? page : 1;
-
             // Compute region detail level from zoom
-            var level = this.LMap.getZoom() < 6 ? 0 : 1;
-
-
+            var level = zoom < this.regions_layer_min_zoom ? 0 : 1;
+            var layer = level ? this.regions_layer : this.country_layer;
+            // Compile list of already fetched features keep exclude tag
+            // constant over pages of a tile, as otherwise the ordering might
+            // get wrong and not all features might be fetched correctly.
+            if(!exclude) {
+                exclude = this.regions_fetched[level].join(',');
+            }
             // Setup search parameters
             var params = {
                 level: level,
                 page: page,
                 tile: tile
+                //exclude: exclude
             };
             params = {data: $.param(params)};
-
             // Create regions collection and fetch data
             var regions = new Regions();
             regions.fetch(params).done(function(data){
+                // Filter results to prevent double rendering
+                data.features = _.filter(data.features, function(feat){
+                    var match = true;
+                    layer.eachLayer(function(layer){
+                        if(layer.feature.id == feat.id) match = false;
+                    });
+                    return match;
+                });
                 // Add this page's data to regions layer.
-                _this.regions_layer.addData(data);
-
+                layer.addData(data);
                 // Recursively get next page if exists.
                 if(data.next){
-                    _this.getRegions(tile, page + 1);
+                    _this.getRegions(tile, zoom, page + 1, exclude);
                 } else {
-                    _this.regions_layer.eachLayer(function(layer){
+                    layer.eachLayer(function(layer){
+                        _this.regions_fetched[level].push(layer.feature.id);
                         // Add interactivity when all regions are loaded
                         layer.on('click', function(){
                             Backbone.history.navigate('region/' + this.feature.id, {trigger: true});
@@ -135,7 +167,6 @@ define([
         },
 
         getSites: function(tile, page){
-            console.log('Getting sites', page, tile);
             var _this = this;
             page = page ? page : 1;
 
@@ -190,21 +221,18 @@ define([
         },
 
         updateMap: function(){
-            console.log('mooveeend', this.LMap.getZoom(), this.LMap.getBounds().toBBoxString());
-            if(this.LMap.getZoom() < 10) {
-                if(this.LMap.hasLayer(this.sites_layer)){
-                    this.LMap.removeLayer(this.sites_layer);
-                }
-                if(!this.LMap.hasLayer(this.regions_layer)){
-                    this.LMap.addLayer(this.regions_layer);
-                }
+            if(this.LMap.getZoom() < this.regions_layer_min_zoom) {
+                if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
+                if(this.LMap.hasLayer(this.regions_layer)) this.LMap.removeLayer(this.regions_layer);
+                if(!this.LMap.hasLayer(this.country_layer)) this.LMap.addLayer(this.country_layer);
+            } else if(this.LMap.getZoom() < this.sites_layer_min_zoom) {
+                if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
+                if(this.LMap.hasLayer(this.country_layer)) this.LMap.removeLayer(this.country_layer);
+                if(!this.LMap.hasLayer(this.regions_layer)) this.LMap.addLayer(this.regions_layer);
             } else {
-                if(!this.LMap.hasLayer(this.sites_layer)){
-                    this.LMap.addLayer(this.sites_layer);
-                }
-                if(this.LMap.hasLayer(this.regions_layer)) {
-                    this.LMap.removeLayer(this.regions_layer);
-                }
+                if(this.LMap.hasLayer(this.country_layer)) this.LMap.removeLayer(this.country_layer);
+                if(this.LMap.hasLayer(this.regions_layer)) this.LMap.removeLayer(this.regions_layer);
+                if(!this.LMap.hasLayer(this.sites_layer)) this.LMap.addLayer(this.sites_layer);
             }
         }
     });
