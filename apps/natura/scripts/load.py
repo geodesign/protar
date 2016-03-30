@@ -2,7 +2,7 @@ import csv
 import glob
 import os
 
-from django.contrib.gis.db.models.functions import Centroid, Transform
+from django.contrib.gis.db.models.functions import Centroid
 from django.contrib.gis.utils import LayerMapping
 from django.db.models import F
 from natura import models
@@ -25,7 +25,7 @@ def run():
 
     # Use layermapping to load all shapes
     lm = LayerMapping(models.Site, geosource, const.NATURA_FIELD_MAPPING)
-    lm.save(step=1000, progress=True)
+    lm.save(step=100, progress=True)
 
     # Copy country code into countryfield table
     models.Site.objects.all().update(country=F('country_code'))
@@ -87,8 +87,8 @@ def run():
             # Add model to batch
             batch.append(model(**row))
 
-            # Every 1000 objects, commit to database and print progress message
-            if counter % 1000 == 0:
+            # Every 100 objects, commit to database and print progress message
+            if counter % 100 == 0:
                 model.objects.bulk_create(batch)
                 batch = []
                 print('Processed {} rows for {}'.format(counter, modelname))
@@ -96,7 +96,8 @@ def run():
         # Commit remaining objects to database
         model.objects.bulk_create(batch)
 
-    models.Site.objects.update(centroid=Centroid(Transform('geom', 4326)))
+    # Compute and store the centroid of each geometry
+    models.Site.objects.update(centroid=Centroid('geom'))
 
     # Print success message
     print('Successfully processed natura data.')

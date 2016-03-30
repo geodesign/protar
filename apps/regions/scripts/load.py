@@ -28,7 +28,7 @@ def run():
 
     # Use layermapping to load all shapes
     lm = LayerMapping(Region, geosource, const.REGION_FIELD_MAPPING)
-    lm.save(step=1000, progress=True, strict=True)
+    lm.save(step=100, progress=True, strict=True)
 
     # Remove inconsistent boundary artefacts
     Region.objects.filter(icc__icontains='#').delete()
@@ -114,4 +114,5 @@ def run():
         # Store sites
         reg.sites.add(*sites)
 
+    # Compute and store the centroid of each geometry
     Region.objects.all().update(centroid=Centroid('geom'))
