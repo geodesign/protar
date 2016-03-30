@@ -133,3 +133,6 @@ def run():
         # Commit remaining patches to database
         if len(batch):
             Patch.objects.bulk_create(batch)
+
+        # Print success message
+        print('Successfully processed {}data for year {}.'.format('change ' if change else '', year))

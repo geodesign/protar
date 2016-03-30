@@ -97,3 +97,6 @@ def run():
         model.objects.bulk_create(batch)
 
     models.Site.objects.update(centroid=Centroid(Transform('geom', 4326)))
+
+    # Print success message
+    print('Successfully processed natura data.')
