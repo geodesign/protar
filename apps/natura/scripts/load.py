@@ -79,6 +79,10 @@ def run():
             if otherspecies:
                 row['directivespecies'] = False
 
+            # Check for null values in impacts
+            if row.get('impact_type', '') == 'NULL':
+                row['impact_type'] = None
+
             # Remove fields that are already in site
             row.pop('country_code', None)
             row.pop('sitetype', None)
