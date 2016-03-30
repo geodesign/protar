@@ -21,7 +21,7 @@ class Site(models.Model):
 
     sitecode = models.CharField(max_length=254, unique=True)
     sitename = models.CharField(max_length=254)
-    release_date = models.CharField(max_length=254)
+    release_date = models.DateField()
     country_code = models.CharField(max_length=2)
     country = CountryField(null=True)
     sitetype = models.CharField(max_length=254, choices=SITETYPE_CHOICES)
