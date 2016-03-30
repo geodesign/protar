@@ -180,7 +180,7 @@ class Habitats(models.Model):
     conservation = models.CharField(max_length=2, blank=True, null=True)
     global_assesment = models.CharField(max_length=2, blank=True, null=True)
     dataquality = models.CharField(max_length=2, blank=True, null=True, choices=QUALITY_CHOICES)
-    percentage_cover = models.FloatField(blank=True, null=True)
+    percentagecover = models.FloatField(blank=True, null=True)
 
     def __str__(self):
         return '{} -- {}'.format(self.habitatcode, self.site.sitecode)

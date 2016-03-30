@@ -1,6 +1,7 @@
 import csv
 import glob
 import os
+from datetime import datetime
 
 from django.contrib.gis.db.models.functions import Centroid
 from django.contrib.gis.utils import LayerMapping
@@ -61,7 +62,7 @@ def run():
             counter += 1
 
             # Convert row names to lower letters for field matching
-            row = {k.lower(): v if v is not '' else None for k, v in row.items()}
+            row = {k.lower(): v if v not in ['', 'NULL'] else None for k, v in row.items()}
 
             # Replace protected name field with allowed name
             if 'global' in row:
@@ -79,9 +80,19 @@ def run():
             if otherspecies:
                 row['directivespecies'] = False
 
-            # Check for null values in impacts
-            if row.get('impact_type', '') == 'NULL':
-                row['impact_type'] = None
+            # Convert dates into right fromat
+            if row.get('date_compilation', ''):
+                row['date_compilation'] = datetime.strptime(row['date_compilation'], "%d/%m/%Y")
+            if row.get('date_update', ''):
+                row['date_update'] = datetime.strptime(row['date_update'], "%d/%m/%Y")
+            if row.get('date_spa', ''):
+                row['date_spa'] = datetime.strptime(row['date_spa'], "%d/%m/%Y")
+            if row.get('date_prop_sci', ''):
+                row['date_prop_sci'] = datetime.strptime(row['date_prop_sci'], "%d/%m/%Y")
+            if row.get('date_conf_sci', ''):
+                row['date_conf_sci'] = datetime.strptime(row['date_conf_sci'], "%d/%m/%Y")
+            if row.get('date_sac', ''):
+                row['date_sac'] = datetime.strptime(row['date_sac'], "%d/%m/%Y")
 
             # Remove fields that are already in site
             row.pop('country_code', None)
@@ -95,7 +106,8 @@ def run():
             if counter % 100 == 0:
                 model.objects.bulk_create(batch)
                 batch = []
-                print('Processed {} rows for {}'.format(counter, modelname))
+                if counter % 5000 == 0:
+                    print('Processed {} rows for {}'.format(counter, modelname))
 
         # Commit remaining objects to database
         model.objects.bulk_create(batch)
