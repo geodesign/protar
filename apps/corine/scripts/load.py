@@ -119,7 +119,7 @@ def run():
             # Apppend this patch to batch array
             batch.append(patch)
 
-            if counter % 5000 == 0:
+            if counter % 500 == 0:
                 # Commit batch to database
                 Patch.objects.bulk_create(batch)
 
@@ -127,8 +127,9 @@ def run():
                 batch = []
 
                 # Log progress
-                now = '[{0}]'.format(datetime.datetime.now().strftime('%Y-%m-%d %T'))
-                print('{} Processed {} features'.format(now, counter))
+                if counter % 10000 == 0:
+                    now = '[{0}]'.format(datetime.datetime.now().strftime('%Y-%m-%d %T'))
+                    print('{} Processed {} features'.format(now, counter))
 
         # Commit remaining patches to database
         if len(batch):
