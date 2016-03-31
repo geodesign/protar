@@ -5,7 +5,7 @@ define([
         'collections/layers',
         'collections/sitesGeo',
         'views/collections/legends',
-        'views/collections/layers',
+        'views/layouts/layerswitcher',
         'text!templates/layouts/explorer.html'
     ],
     function(
@@ -15,7 +15,7 @@ define([
         Layers,
         Sites,
         LegendView,
-        LayersView,
+        Layerswitcher,
         template
     ){
     var AppLayoutView = Marionette.LayoutView.extend({
@@ -53,7 +53,8 @@ define([
               attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
             }).addTo(this.LMap);
 
-            L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png').addTo(this.LMap);
+            this.corine_layer = L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png');
+            this.corine_layer.addTo(this.LMap);
 
             // Bind zoomend to update layer
             this.LMap.on('zoomend', this.updateMap);
@@ -214,10 +215,14 @@ define([
         },
 
         createLayerSwitcher: function(){
-            var lyrs = new Layers();
-            var lyr_view = new LayersView({collection: lyrs});
-            lyrs.fetch();
-            this.getRegion('layers').show(lyr_view);
+            var _this = this;
+            var switcher = new Layerswitcher();
+            this.getRegion('layers').show(switcher);
+            switcher.on('selected:layer', function(model){
+                _this.LMap.removeLayer(_this.corine_layer);
+                _this.corine_layer = L.tileLayer('/raster/tiles/' + model.attributes.rasterlayer +'/{z}/{x}/{y}.png');
+                _this.LMap.addLayer(_this.corine_layer);
+            });
         },
 
         updateMap: function(){
