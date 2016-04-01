@@ -14,12 +14,12 @@ define([
     return Marionette.LayoutView.extend({
         template: _.template(template),
         regions: {
-            layers: '#layers',
+            layers: '.layer-list',
         },
         ui: {
             head: '.panel-heading',
-            title: '.current-layer-title',
-            body: '#layers'
+            title: '.panel-title',
+            body: '.layer-list'
         },
         events: {
             'click @ui.head': 'toggle',
