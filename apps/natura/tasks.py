@@ -3,7 +3,7 @@ import datetime
 from celery import task
 
 from corine.models import Patch
-from django.contrib.gis.db.models.functions import Area, Intersection
+from django.contrib.gis.db.models.functions import Area, Intersection, MakeValid
 from django.db.models import Sum
 from natura.models import Cover, IntersectionLog, Site
 
@@ -24,7 +24,7 @@ def process_sites(sites):
         qs = qs.values('year', 'nomenclature_id', 'change', 'nomenclature_previous_id')
 
         # Annotate with sum of intersection areas
-        qs = qs.annotate(area=Sum(Area(Intersection('geom', site.geom))))
+        qs = qs.annotate(area=Sum(Area(Intersection(MakeValid('geom'), site.geom))))
 
         # Assemble cover objects from aggregate result
         batch = [Cover(site=site, **dat) for dat in qs]
