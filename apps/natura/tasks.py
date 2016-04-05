@@ -27,7 +27,10 @@ def process_sites(sites):
         qs = qs.annotate(area=Sum(Area(Intersection(MakeValid('geom'), site.geom))))
 
         # Assemble cover objects from aggregate result
-        batch = [Cover(site=site, **dat) for dat in qs]
+        batch = []
+        for dat in qs:
+            area = dat.pop('area')
+            batch.append(Cover(site=site, area=area.sq_m, **dat))
 
         # Commit cover for the sites to database
         Cover.objects.bulk_create(batch)
