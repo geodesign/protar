@@ -38,7 +38,7 @@ can be accessed `here`__.
 
 __ http://ec.europa.eu/environment/nature/natura2000/index_en.htm
 __ http://www.eea.europa.eu/legal/copyright
-__ http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/66812705cd9b4c4280660e5eb0d8d59c
+__ http://www.eea.europa.eu/data-and-maps/data/ds_resolveuid/52E54BF3-ACDB-4959-9165-F3E4469BE610
 
 Corine Land cover
 ^^^^^^^^^^^^^^^^^

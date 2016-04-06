@@ -15,5 +15,5 @@ __ https://github.com/geodesign/protar
     :maxdepth: 3
 
     data_management
-    buid_database
+    build_database
     legal
