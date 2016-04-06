@@ -3,7 +3,7 @@ import datetime
 from celery import task
 
 from corine.models import Patch
-from django.contrib.gis.db.models.functions import Area, Intersection, MakeValid
+from django.contrib.gis.db.models.functions import Area, Intersection
 from django.db.models import Sum
 from natura.models import Cover, IntersectionLog, Site
 

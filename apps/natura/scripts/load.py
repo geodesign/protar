@@ -3,7 +3,7 @@ import glob
 import os
 from datetime import datetime
 
-from django.contrib.gis.db.models.functions import Centroid
+from django.contrib.gis.db.models.functions import Centroid, Transform
 from django.contrib.gis.utils import LayerMapping
 from django.db.models import F
 from natura import models
@@ -113,7 +113,7 @@ def run():
         model.objects.bulk_create(batch)
 
     # Compute and store the centroid of each geometry
-    models.Site.objects.update(centroid=Centroid('geom'))
+    models.Site.objects.update(centroid=Centroid(Transform('geom', 4326)))
 
     # Print success message
     print('Successfully processed natura data.')
