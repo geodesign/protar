@@ -100,10 +100,6 @@ def run():
                 if multi.hasz:
                     multi = GEOSGeometry(wkb_w.write_hex(multi))
 
-                # Transform geometry to WGS84
-                multi.srid = 3035
-                multi.transform(4326)
-
                 patch.geom = multi
             except (GDALException, GEOSException):
                 print(

@@ -24,7 +24,7 @@ def process_sites(sites):
         qs = qs.values('year', 'nomenclature_id', 'change', 'nomenclature_previous_id')
 
         # Annotate with sum of intersection areas
-        qs = qs.annotate(area=Sum(Area(Intersection(MakeValid('geom'), site.geom))))
+        qs = qs.annotate(area=Sum(Area(Intersection('geom', site.geom))))
 
         # Assemble cover objects from aggregate result
         batch = []
