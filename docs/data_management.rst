@@ -25,7 +25,7 @@ nature & biodiversity policy. The network currently covers about 18% of Europe's
 territory.
 
 The data is contributed by regional authorities to a centralized database,
-which is managed by the European Environmenal Agency (EEA). The database
+which is managed by the European Environment Agency (EEA). The database
 consists of Geographic data and tabular data. The geographic data is available
 in two Geographic Information System (GIS) formats (sqlite and shapefile), and
 the tabular data as csv or excel tables.
@@ -46,7 +46,7 @@ The Corine Land Cover (CLC) dataset is a comprehensive and consistent land
 cover data layer for all of Europe.
 
 It is available for four years: 1990, 2000, 2006, and 2012. Landcover *change*
-layers are availableIn addition to these land cover layers. These represent the
+layers are available. In addition to these land cover layers. These represent the
 land cover change between each of the above years. The 2012 version of the
 dataset is still in production hand has not been finalized. Nevertheless, to
 take advantage of the most up to date data, the latest available version
@@ -120,7 +120,7 @@ Transfer Application Programming Interface. The API is also publicly
 accessible and provides structured access to the results of the Protar
 analysis. Protar's API root can be found `here`__.
 
-The protar api is setup with Cross- Origin Resource Sharing (CORS) headers
+The Protar api is setup with Cross- Origin Resource Sharing (CORS) headers
 through the `django-cors-headers`__ app, so it can readily be used from within
 other applications anywhere on the web.
 

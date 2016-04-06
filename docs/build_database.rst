@@ -1,14 +1,14 @@
 ==============
 Build Database
 ==============
-This section describes how to re-build the protar PostGIS database from
+This section describes how to re-build the Protar PostGIS database from
 scratch. This presumes that the app and all its dependencies are installed
 and that the database settings are configured to use a PostGIS backend as
 specified below.
 
 Configure Database
 ------------------
-The protar app works only PostGIS as database backends. To point the app
+The Protar app works only PostGIS as database backends. To point the app
 to a specific database, specify the following environmental variables.
 
 * Database name ``DB_NAME`` defaults to ``protar``
@@ -58,7 +58,7 @@ Parse Natura Data
 To load the Natura 2000 protected areas into the database, specify the Natura
 data directory through an environment variable. The Natura data folder should
 contain one shapefile with the Natura data and a series of CSV files with the
-Natura tabular data. Then the spatial and tabluar data can be loaded using the
+Natura tabular data. Then the spatial and tabular data can be loaded using the
 following command::
 
     export NATURA_DATA_DIRECTORY=/path/to/natura/data
@@ -72,7 +72,8 @@ be built with a script as well.
 The intersection script computes the landcover statistics for all protected
 areas. This geoprocessing step takes many hours of computations. Therefore,
 the asynchronous task manager `Celery`__ is used to do the geoprocessing of
-the data.
+the data. The computations are split into small batches of Natura sites, each
+of which is a separate Celery task.
 
 To learn how to setup Celery, consult its documentation. Protar assumes a local
 `RabbitMQ`__ instance as broker and a `Redis`__ instance setup for the result
@@ -88,11 +89,8 @@ specified using the ``CELERYD_CONCURRENCY`` environment variable. A more
 detailed description of how to use Celery goes beyond the scope of this
 documentation, consult the Celery documentation for more details.
 
-With Celery up and running, execute the follwing script to add tasks to the
-queue that wil build the intersection data squentially. The computations are
-split into small batches of Natura sites, each of which is a separate Celery
-task.
-::
+With Celery up and running, execute the following script to add tasks to the
+queue that will build the intersection data squentially::
 
     ./manage.py runscript natura.scripts.intersect
 
