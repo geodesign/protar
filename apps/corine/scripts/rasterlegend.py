@@ -24,3 +24,5 @@ def run():
     legend.refresh_from_db()
     legend.update_json()
     legend.save()
+
+    print('Successfully created raster legend.')
