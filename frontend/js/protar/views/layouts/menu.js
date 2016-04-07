@@ -19,12 +19,16 @@ define([
             this.current_year = 2012;
             this.exclude = [];
             this.colormap = {};
+
             // Instantiate Legend
             this.nomenclatures = new Nomenclatures();
             this.nomenclatures.fetch().done(function(){
                 _this.createLegend();
                 _this.createColormap();
             });
+
+            // Trigger resize event when window is resized, this is used
+            // on the natura interface to redraw charts.
             $(window).on("resize", function(){
                 _this.trigger('changed:resize');
             });

@@ -4,3 +4,10 @@
 @import "../components/bootstrap/less/utilities.less";
 // Overwrite default icon location from bootstrap
 @icon-font-path: "../../components/bootstrap/fonts/";
+// Declare responsive menu column
+.menu-md-3 {
+    @media(min-width: @screen-sm-min){
+        .make-md-column(3);
+        float: right !important;
+    }
+}

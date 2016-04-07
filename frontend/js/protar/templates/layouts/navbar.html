@@ -2,17 +2,24 @@
     <div class="container">
         <div class="navbar-header">
             <a href="#" class="navbar-brand">Protar</a>
+            <button type="button" class="btn btn-default navbar-btn navbar-right">
+                <a class="navbar-link navigate-explorer glyphicon glyphicon-globe"></a>
+            </button>
+            <button type="button" class="btn btn-default navbar-btn navbar-right">
+                <a class="navbar-link navigate-dashboard glyphicon glyphicon-dashboard"></a>
+            </button>
+
+            <!--<button class="navbar-toggle" type="button">-->
+            <button aria-expanded="true" class="navbar-toggle" type="button" data-toggle="collapse" data-target="#menu-main">
+                <span class="glyphicon glyphicon-menu-hamburger navbar-hamburger"></span>
+            </button>
+
             <button aria-expanded="true" class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+                <span class="glyphicon glyphicon-search navbar-hamburger"></span>
             </button>
         </div>
         <div class="navbar-collapse collapse" id="navbar-main">
             <form class="navbar-left navbar-form navbar-search-container" role="search"></form>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a class="navigate-explorer"><span class="glyphicon glyphicon-globe"></span></a></li>
-            </ul>
         </div>
     </div>
 </div>

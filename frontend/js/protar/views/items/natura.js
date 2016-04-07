@@ -79,7 +79,6 @@ define([
 
         createCharts: function(){
             var _this = this;
-            console.log('|');
             if(!this.noms_done || !this.geom_done || !this.layers_done) return;
 
             // Combine nomenclature data to covers and compute aggregates

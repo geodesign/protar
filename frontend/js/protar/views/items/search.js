@@ -80,6 +80,7 @@ define([
                 Backbone.history.navigate(urlbase + suggestion.id, {trigger: true});
                 // Reset value on search field
                 _this.ui.input.typeahead('val', '');
+                _this.trigger('select');
             });
         }
     });
