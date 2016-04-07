@@ -1,21 +1,21 @@
 define([
         'marionette',
+        'app',
         'collections/regionsGeo',
         'collections/nomenclatures',
         'collections/layers',
         'collections/sitesGeo',
         'views/collections/legends',
-        'views/layouts/layerswitcher',
         'text!templates/layouts/explorer.html'
     ],
     function(
         Marionette,
+        App,
         Regions,
         Nomenclatures,
         Layers,
         Sites,
         LegendView,
-        Layerswitcher,
         template
     ){
     var AppLayoutView = Marionette.LayoutView.extend({
@@ -30,7 +30,7 @@ define([
         },
 
         initialize: function(){
-            _.bindAll(this, 'createLegend', 'updateMap');
+            _.bindAll(this, 'updateGeometries', 'updateRaster');
             this.sites_layer_min_zoom = 9;
             this.regions_layer_min_zoom = 7;
             this.regions_fetched = {0: [], 1: []};
@@ -53,11 +53,8 @@ define([
               attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
             }).addTo(this.LMap);
 
-            this.corine_layer = L.tileLayer('/raster/tiles/2/{z}/{x}/{y}.png');
-            this.corine_layer.addTo(this.LMap);
-
             // Bind zoomend to update layer
-            this.LMap.on('zoomend', this.updateMap);
+            this.LMap.on('zoomend', this.updateGeometries);
 
             basemap.on('tileload', function(e){
                 var tile_values = e.url.match(/\d+/g);
@@ -112,11 +109,7 @@ define([
             this.sites_layer.on('mouseover', mouseover);
             this.sites_layer.on('mouseout', mouseout);
 
-            // Instantiate Legend and layer switcher
-            this.nomenclatures = new Nomenclatures();
-            this.nomenclatures.fetch().done(this.createLegend);
-
-            this.createLayerSwitcher();
+            this.connectMenu();
         },
 
         getRegions: function(tile, zoom, page, exclude){
@@ -198,34 +191,28 @@ define([
             });
         },
 
-        createLegend: function(){
-            var current_level = 2;
-            // Make sure nomenclatures are sorted
-            this.nomenclatures.sortBy('code_3');
-            // Attach label attribute based on level
-            this.nomenclatures.each(function(nom){ nom.attributes.label = nom.attributes['label_' + current_level]; });
-            // Group by code and pick first element of each group (assumes preordering)
-            var level_noms = this.nomenclatures.groupBy('code_' + current_level);
-            level_noms = _.map(level_noms, function(group){ return group[0]});
-            // Convert list to collection
-            level_noms = new Backbone.Collection(level_noms);
-            // Create and show legend view
-            var noms_view = new LegendView({collection: level_noms});
-            this.getRegion('legend').show(noms_view);
-        },
-
-        createLayerSwitcher: function(){
+        connectMenu: function(){
             var _this = this;
-            var switcher = new Layerswitcher();
-            this.getRegion('layers').show(switcher);
-            switcher.on('selected:layer', function(model){
-                _this.LMap.removeLayer(_this.corine_layer);
-                _this.corine_layer = L.tileLayer('/raster/tiles/' + model.attributes.rasterlayer +'/{z}/{x}/{y}.png');
-                _this.LMap.addLayer(_this.corine_layer);
+            this.lyrs = new Layers();
+            this.lyrs.fetch().done(function(){
+                _this.updateRaster();
+                App.menuView.on('changed:year', _this.updateRaster);
+                App.menuView.on('changed:level', _this.updateRaster);
+                App.menuView.on('changed:legend', _this.updateRaster);
             });
         },
 
-        updateMap: function(){
+        updateRaster: function(){
+            if(this.corine_layer) this.LMap.removeLayer(this.corine_layer);
+            var model = this.lyrs.filter(function(layer){
+                return layer.attributes.year == App.menuView.current_year;
+            })[0];
+            var colormap_uri = encodeURIComponent(JSON.stringify(App.menuView.colormap));
+            this.corine_layer = L.tileLayer('/raster/tiles/' + model.attributes.rasterlayer +'/{z}/{x}/{y}.png?colormap=' + colormap_uri);
+            this.LMap.addLayer(this.corine_layer);
+        },
+
+        updateGeometries: function(){
             if(this.LMap.getZoom() < this.regions_layer_min_zoom) {
                 if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
                 if(this.LMap.hasLayer(this.regions_layer)) this.LMap.removeLayer(this.regions_layer);

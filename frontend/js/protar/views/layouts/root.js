@@ -9,9 +9,12 @@ define([
         el: 'body',
 
         regions: {
+            mainRegion: '.main-content',
+            landingRegion: '#landingregion',
             appRegion: '#appregion',
             explorerRegion: '#explorerregion',
-            navbarRegion: '#navbarregion'
+            navbarRegion: '#navbarregion',
+            menuRegion: '#menuregion'
         }
     });
 });

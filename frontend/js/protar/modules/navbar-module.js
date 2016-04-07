@@ -17,8 +17,11 @@ define([
 
             // Bind to navigation event from navbar
             layout.on('navigate:explorer', function(){
+                // Expand main region to container
+                App.rootView.getRegion('mainRegion').$el.removeClass('container');
                 // Hide app region
                 App.rootView.getRegion('appRegion').$el.hide();
+                App.rootView.getRegion('landingRegion').$el.hide();
                 // Show explorer region
                 var explorer_region = App.rootView.getRegion('explorerRegion');
                 explorer_region.$el.show();

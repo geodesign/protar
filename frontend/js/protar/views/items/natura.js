@@ -3,6 +3,7 @@ define([
         'leaflet',
         'chartjs',
         'd3',
+        'app',
         'models/siteGeo',
         'collections/nomenclatures',
         'collections/layers',
@@ -16,6 +17,7 @@ define([
         L,
         Chart,
         d3,
+        App,
         SiteGeo,
         Nomenclatures,
         Layers,
@@ -28,32 +30,42 @@ define([
 
         initialize: function(){
             _.bindAll(this, 'createCharts');
-            this.exclude = [];
-            this.maps = [];
+            this.tile_layers = {};
+            // Listen to menu events to update interface
+            this.listenTo(App.menuView, 'changed:level', this.createCharts);
+            this.listenTo(App.menuView, 'changed:legend', this.createCharts);
+            this.listenTo(App.menuView, 'changed:resize', this.createCharts);
         },
 
         onShow: function(){
             var _this = this;
-            // Set default year and landcover classification level
-            this.current_year = _.max(this.model.attributes.years);
-            this.current_level = 1;
 
             // Get complete nomenclatures list
+            this.noms_done = false;
             this.nomenclatures = new Nomenclatures();
             this.nomenclatures.fetch().done(function(){
+                _this.noms_done = true;
                 _this.createCharts();
             });
 
-            // Basic window resize chart refresh
-            $(window).on("resize", this.createCharts);
+            // Get site geometry
+            this.geom_done = false;
+            this.model.attributes.geom.fetch().done(function(geom_result){
+                _this.geom_result = geom_result;
+                _this.geom_done = true;
+                _this.createCharts();
+            });
+
+            // Get corine landcover layers
+            this.layers_done = false;
+            this.layers = new Layers();
+            this.layers.fetch().done(function(){
+                _this.layers_done = true;
+                _this.createCharts();
+            });
         },
 
         ui: {
-            year: 'button.year',
-            level: 'button.level',
-            change: 'button.change',
-            legend: '#legend',
-
             map1990: '#map-1990',
             map2000: '#map-2000',
             map2006: '#map-2006',
@@ -65,13 +77,10 @@ define([
             chart2012: '#chart-2012'
         },
 
-        events: {
-            'click @ui.year': 'changed',
-            'click @ui.level': 'changed'
-        },
-
-        createCharts: function(exclude){
+        createCharts: function(){
             var _this = this;
+            console.log('|');
+            if(!this.noms_done || !this.geom_done || !this.layers_done) return;
 
             // Combine nomenclature data to covers and compute aggregates
             this.bindData();
@@ -88,16 +97,13 @@ define([
 
             // Create new charts
             _.each([1990, 2000, 2006, 2012], function(year){
-                _this.current_year = year;
                 _this.createChart(year);
                 if(year != 1990) {
-                    _this.createSankey();
+                    _this.createSankey(year);
                 }
             });
             this.createStackedChart();
             this.createMaps();
-
-            if(!exclude) this.createLegend();
         },
 
         bindData: function(){
@@ -111,8 +117,8 @@ define([
                     return nom.id == cover.nomenclature;
                 })[0];
 
-                cover.code = nom.attributes['code_' + _this.current_level];
-                cover.label = nom.attributes['label_' + _this.current_level];
+                cover.code = nom.attributes['code_' + App.menuView.current_level];
+                cover.label = nom.attributes['label_' + App.menuView.current_level];
                 cover.color = nom.attributes.color;
                 cover.code_group = cover.code + '_' + cover.year;
                 cover.change = false;
@@ -123,8 +129,8 @@ define([
                     var nom = _this.nomenclatures.filter(function(nom){
                         return nom.id == cover.nomenclature_previous;
                     })[0];
-                    cover.code_previous = nom.attributes['code_' + _this.current_level];
-                    cover.label_previous = nom.attributes['label_' + _this.current_level];
+                    cover.code_previous = nom.attributes['code_' + App.menuView.current_level];
+                    cover.label_previous = nom.attributes['label_' + App.menuView.current_level];
                     cover.color_previous = nom.attributes.color;
                     cover.code_group += '_' + cover.code_previous;
                     cover.change = true;
@@ -135,7 +141,7 @@ define([
             data = _.filter(data, function(cover){ return cover.code != cover.code_previous; });
 
             // Remove excluded elements
-            data = _.filter(data, function(cover){ return _.indexOf(_this.exclude, cover.code) < 0; });
+            data = _.filter(data, function(cover){ return _.indexOf(App.menuView.exclude, cover.code) < 0; });
 
             // Sort data
             data = _.sortBy(data, 'code_full');
@@ -166,58 +172,6 @@ define([
             return data;
         },
 
-        createLegend: function(){
-            var _this = this;
-            // Clear current selection array
-            this.exclude = [];
-            var data = this.getUniqueAggregates();
-
-            // Instantiate view and collection objects
-            var legend = new Backbone.Collection(_.values(data));
-            var nom_view = new LegendView({collection: legend});
-
-            // Bind click event to update interface
-            nom_view.on('childview:clicked', function(view){
-                view.$el.toggleClass('active');
-                var index = _.indexOf(_this.exclude, view.model.attributes.code);
-                if(index < 0) {
-                    _this.exclude.push(view.model.attributes.code);
-                } else {
-                    _this.exclude.pop(index);
-                }
-                _this.createCharts(true);
-            });
-
-            // Render view
-            nom_view.render();
-
-            // Clear current legend and add new one
-            $('#legend').html('');
-            $('#legend').append(nom_view.$el);
-        },
-
-        createColormap: function(){
-            var _this = this;
-
-            var data = this.getUniqueAggregates();
-            // Create colormap from current aggregate level
-            this.colormap = {};
-            _.each(data, function(agg){
-                // Ignore excluded elements
-                if(_.indexOf(_this.exclude, agg.code) >= 0) return;
-
-                // Get nomenclatures for this aggregate
-                var noms = _this.nomenclatures.filter(function(nom){
-                    return nom.attributes['code_' + _this.current_level] == agg.code;
-                });
-                // Add all grid codes to colormap using a single color from the aggregate
-                _.each(noms, function(nom){
-                    _this.colormap[nom.attributes.grid_code] = agg.color;
-                });
-            });
-            this.colormap_uri = encodeURIComponent(JSON.stringify(this.colormap));
-        },
-
         createChart: function(year){
             var _this = this;
 
@@ -235,6 +189,7 @@ define([
                 ]
             }
             // Get chart area
+            if(!this.ui['chart' + year.toString()].get) debugger;
             var ctx = this.ui['chart' + year.toString()].get(0).getContext('2d');
             // Create chart
             var chart = new Chart(ctx, {
@@ -304,88 +259,91 @@ define([
 
         createMaps: function(){
             var _this = this;
-            // Clear any existing maps
-            _.each(this.maps, function(map){ map.remove(); });
-            // Create colormap from current selection
-            this.createColormap();
-            // Fetch geometry for site or region
-            this.maps = [];
-            this.model.attributes.geom.fetch().done(function(geom_result){
-                // Get corine landcover layers
-                var layers = new Layers();
-                layers.fetch().done(function(){
-                    layers.each(function(layer){
-                        // Create maps
-                        _this.createMap(layer.attributes.rasterlayer, layer.attributes.year, geom_result)
+            // Instantiate maps if not done already
+            if(!this.maps) {
+                this.maps = {};
+                _.each([1990, 2000, 2006, 2012], function(year){
+                    // Get aggregation area geometry from model
+                    var site = L.geoJson(_this.geom_result, {
+                        style: {
+                            weight: 2,
+                            opacity: 0.7,
+                            color: '#333',
+                            fillOpacity: 0
+                        }
                     });
+
+                    // Get map bounds with 5% padding
+                    var bounds = site.getBounds().pad(0.05);
+
+                    // Create leaflet map
+                    var LMap = L.map(_this.ui['map' + year.toString()][0], {
+                        scrollWheelZoom: false,
+                        attributionControl: false,
+                        zoomControl: false
+                    }).fitBounds(bounds);
+
+                    LMap.addLayer(site);
+
+                    // Add zoom control to last map on the list
+                    if(year == 2012) LMap.addControl(L.control.zoom({position: 'bottomright'}));
+
+                    // Sync maps
+                    _.each(_this.maps, function(map, key){
+                        map.sync(LMap);
+                        LMap.sync(map);
+                    });
+
+                    L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+                    }).addTo(LMap);
+
+                    _this.maps[year] = LMap;
                 });
-            });
+            }
+
+            this.createLayers();
         },
 
-        createMap: function(id, year, result){
+        createLayers: function(){
             var _this = this;
 
-            // Get aggregation area geometry from model
-            var site = L.geoJson(result, {
-                style: {
-                    weight: 2,
-                    opacity: 0.7,
-                    color: '#333',
-                    fillOpacity: 0.2,
-                    fillColor: '#333'
-                }
+            var colormap_uri = encodeURIComponent(JSON.stringify(App.menuView.colormap));
+
+            // Get corine landcover layers
+            this.layers.each(function(layer){
+                // Ignore change layers on dashboard
+                if(layer.attributes.change) return;
+                // Get map for this layer
+                var LMap = _this.maps[layer.attributes.year];
+                // Clear layers if exists
+                if(_this.tile_layers[layer.attributes.year]) {
+                    LMap.removeLayer(_this.tile_layers[layer.attributes.year]);
+                };
+                var tile_layer = L.tileLayer('/raster/tiles/'+ layer.attributes.rasterlayer.toString() +'/{z}/{x}/{y}.png?colormap=' + colormap_uri, {
+                    attribution: '&CLC EU'
+                }).addTo(LMap);
+                _this.tile_layers[layer.attributes.year] = tile_layer;
             });
-
-            // Get map bounds with 5% padding
-            var bounds = site.getBounds().pad(0.05);
-
-            // Create leaflet map
-            var LMap = L.map(this.ui['map' + year.toString()][0], {
-                scrollWheelZoom: false,
-                attributionControl: false,
-                zoomControl: false
-            }).fitBounds(bounds);
-
-            // Add zoom control to last map on the list
-            if(year == 2012) LMap.addControl(L.control.zoom({position: 'bottomright'}));
-
-            // Sync maps
-            _.each(this.maps, function(map){
-                map.sync(LMap);
-                LMap.sync(map);
-            });
-
-            this.maps.push(LMap);
-
-            L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-            }).addTo(LMap);
-
-
-            L.tileLayer('/raster/tiles/'+ id.toString() +'/{z}/{x}/{y}.png?colormap=' + this.colormap_uri, {
-                attribution: '&CLC EU'
-            }).addTo(LMap);
-
-            LMap.addLayer(site);
         },
 
-        createLinksNodesChange: function(){
+        createLinksNodesChange: function(year){
             var _this = this;
 
             // Prepare data buckets and access shortcuts
             var nodes = {};
             var links = [];
             var node_index = 0;
-            var previous_year = this.model.attributes.years[_.indexOf(this.model.attributes.years, this.current_year) - 1];
+            var previous_year = this.model.attributes.years[_.indexOf(this.model.attributes.years, year) - 1];
 
             // Use aggregates for chart
             _.each(this.aggregates.filter(function(x){ return x.change; }), function(agg){
                 // Filter by time
-                if(agg.year == _this.current_year){
+                if(agg.year == year){
                     // Create target node if it does not exist
-                    var key_to = agg.code + '_' + _this.current_year;
+                    var key_to = agg.code + '_' + year;
                     if(!nodes[key_to]) {
-                        nodes[key_to] = {id: node_index, nomenclature: agg.nomenclature, year: _this.current_year, name: agg.label, color: agg.color};
+                        nodes[key_to] = {id: node_index, nomenclature: agg.nomenclature, year: year, name: agg.label, color: agg.color};
                         node_index++;
                     }
                     // Create origin node if it does not exist
@@ -406,15 +364,15 @@ define([
             return {links: links, nodes: _.values(nodes)};
         },
 
-        createSankey: function(){
-            var data = this.createLinksNodesChange();
+        createSankey: function(year){
+            var data = this.createLinksNodesChange(year);
             if(data.length == 0) return;
 
             // Destroy previous chart
             if(this.chart) this.chart.destroy();
 
             var margin = 10;
-            var width = $("#sankey-" + this.current_year.toString()).width() - margin - margin;
+            var width = $("#sankey-" + year.toString()).width() - margin - margin;
             var height = 300 - margin - margin;
 
             var formatNumber = d3.format(",.0f");
@@ -423,7 +381,7 @@ define([
             }
             color = d3.scale.category20();
 
-            var svg = d3.select("#sankey-" + this.current_year.toString()).append("svg")
+            var svg = d3.select("#sankey-" + year.toString()).append("svg")
                 .attr("width", width + margin + margin)
                 .attr("height", height + margin + margin)
                 .append("g")
@@ -500,24 +458,6 @@ define([
                 .attr("text-anchor", "start");
 
             this.sankeys.push(svg);
-        },
-
-        changed: function(e){
-            var el = $(e.target);
-            // Skip if element is already selected
-            if(el.hasClass('active')) return;
-
-            // Toggle classes
-            el.addClass('active').siblings().removeClass('active');
-
-            // Update value
-            if(el.hasClass('year')){
-                console.log('Changing year placeholder.', el.data('year'));
-            } else {
-                this.current_level = el.data('level');
-            }
-
-            this.createCharts();
         }
     });
 

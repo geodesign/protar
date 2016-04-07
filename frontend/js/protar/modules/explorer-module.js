@@ -25,8 +25,11 @@ define([
         _.extend(mod.Controller.prototype, {
 
             start: function() {
-                // Hide app region
+                // Expand main region to full viewport
+                App.rootView.getRegion('mainRegion').$el.removeClass('container');
+                // Hide app and landing region
                 App.rootView.getRegion('appRegion').$el.hide();
+                App.rootView.getRegion('landingRegion').$el.hide();
                 // Show explorer region
                 var explorer_region = App.rootView.getRegion('explorerRegion');
                 explorer_region.$el.show();
@@ -36,6 +39,7 @@ define([
                     layout.render();
                     explorer_region.show(layout);
                 }
+                var explorer_region = App.rootView.getRegion('explorerRegion');
             }
         });
 

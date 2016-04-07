@@ -12,7 +12,7 @@ requirejs.config({
         d3: '../../components/d3/d3',
         sankey: '../../components/d3-sankey/sankey/sankey',
         moment: '../../components/moment/moment',
-        typeahead: '../../components/typeahead.js/dist/typeahead.bundle',
+        typeahead: '../../components/typeahead.js/dist/typeahead.bundle'
     },
     shim: {
         'bootstrap': {

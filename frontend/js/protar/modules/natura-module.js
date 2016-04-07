@@ -49,8 +49,11 @@ define([
             },
 
             start: function() {
-                // Hide explorer region
+                // Reduce main region to container
+                App.rootView.getRegion('mainRegion').$el.addClass('container');
+                // Hide explorer and landing region
                 App.rootView.getRegion('explorerRegion').$el.hide();
+                App.rootView.getRegion('landingRegion').$el.hide();
                 // Show app region
                 var app_region = App.rootView.getRegion('appRegion');
                 app_region.$el.show();

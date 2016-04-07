@@ -2,9 +2,11 @@
 {% load compress %}
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <title>Protar</title>
 
-    <title>protar</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Protected Area Landcover Change Explorer for MyGeoss call.">
 
     {% compress css %}
@@ -14,6 +16,7 @@
         <link rel="stylesheet" href="{{ STATIC_URL }}less/natura.less" type="text/less"/>
         <link rel="stylesheet" href="{{ STATIC_URL }}less/landing.less" type="text/less"/>
         <link rel="stylesheet" href="{{ STATIC_URL }}less/explorer.less" type="text/less"/>
+        <link rel="stylesheet" href="{{ STATIC_URL }}less/menu.less" type="text/less"/>
     {% endcompress css %}
     <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -22,8 +25,15 @@
 
 <body>
     <div id="navbarregion"></div>
-    <div id="appregion" class="container fill"></div>
-    <div id="explorerregion" class="container fill"></div>
+    <div class="container container-fluid main-content">
+        <div class="row">
+            <div id="landingregion" class="col-md-12"></div>
+            <div id="appregion" class="col-md-9"></div>
+            <div id="explorerregion" class="co-md-9"></div>
+            <div id="menuregion" class="col-md-3 pull-right"></div>
+        </div>
+    </div>
+    <!--<div id="explorerregion" class="container fill"></div>-->
 
     {% compress js %}
         <script language="javascript">var STATIC_URL = "{{ STATIC_URL }}";</script>

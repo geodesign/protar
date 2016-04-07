@@ -22,19 +22,25 @@ define([
         _.extend(this.Controller.prototype, {
 
             start: function() {
+                // Reduce main region to container
+                App.rootView.getRegion('mainRegion').$el.addClass('container');
                 // Hide explorer region
                 App.rootView.getRegion('explorerRegion').$el.hide();
+                App.rootView.getRegion('appRegion').$el.hide();
                 // Show app region
-                var app_region = App.rootView.getRegion('appRegion');
-                app_region.$el.show();
+                var landing_region = App.rootView.getRegion('landingRegion');
+                landing_region.$el.show();
                 // Render landing page
                 var layout = new LandingLayoutView();
-                app_region.show(layout);
+                landing_region.show(layout);
 
                 // Bind to navigation event for main explorer button
                 layout.on('navigate:explorer', function(){
+                    // Expand main region to container
+                    App.rootView.getRegion('mainRegion').$el.removeClass('container');
                     // Hide app region
                     App.rootView.getRegion('appRegion').$el.hide();
+                    App.rootView.getRegion('landingRegion').$el.hide();
                     // Show explorer region
                     var explorer_region = App.rootView.getRegion('explorerRegion');
                     explorer_region.$el.show();
