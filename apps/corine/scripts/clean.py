@@ -4,5 +4,5 @@ from django.contrib.gis.db.models.functions import MakeValid
 
 def run():
     print('Cleaning corine geoms.')
-    Patch.objects.update(geom_cleaned=MakeValid('geom'))
+    Patch.objects.update(geom=MakeValid('geom'))
     print('Successfully cleaned all corine geoms.')
