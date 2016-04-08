@@ -3,6 +3,6 @@ from django.contrib.gis.db.models.functions import MakeValid
 
 
 def run():
-    print('Reprojecting corine geoms.')
+    print('Cleaning corine geoms.')
     Patch.objects.update(geom_cleaned=MakeValid('geom'))
-    print('Successfully reprojected and validated all corine geoms.')
+    print('Successfully cleaned all corine geoms.')
