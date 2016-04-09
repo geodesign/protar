@@ -63,6 +63,16 @@ substantial. There are 8191080 polygons if counting all years and including
 change data. The size of this table in PostGIS is about 30GB, and it requires
 another 30GB for the index.
 
+A part of the Corine landcover geometries are not `valid geometries`__. Before
+computing the intersection, it is therefore necessary to clean the Coine data.
+The script to clean the data calls `ST_MakeValid`__ on all geometries of the
+dataset. Run the script using the following command::
+
+    ./manage.py runscript corine.scripts.clean
+
+__ http://postgis.net/docs/using_postgis_dbmanagement.html#OGC_Validity
+__ http://postgis.net/docs/ST_MakeValid.html
+
 Parse Natura Data
 -----------------
 To load the Natura 2000 protected areas into the database, specify the Natura
@@ -110,6 +120,15 @@ queue that will build the intersection data squentially::
 Due to the data volume of both the Corine and the Natura data, this
 intersection is a substantial task. On a server with 4 CPUs and SSD disks
 the intersection took roughly 20 hours to complete.
+
+Dump the data
+-------------
+The protar frontend does not make any use of the Corine landcover geometries
+after computing the intersection. To use the data for running the app, it is
+therefore sufficient to use a database without the ``corine_patch`` table. To
+dump the data without the patches, use the following command::
+
+    pg_dump protar --exclude-table-data=corine_patch -F c -v -f protar.dump
 
 __ http://www.celeryproject.org/
 __ http://redis.io/
