@@ -6,6 +6,11 @@ scratch. This presumes that the app and all its dependencies are installed
 and that the database settings are configured to use a PostGIS backend as
 specified below.
 
+Building this database takes a substantial amount of resources, and the
+result is publicly available. In most cases it is therefore not necessary
+to rebuild this dataset. The description here is for documentation purposes
+and will be a guidance for potential future updates.
+
 Configure Database
 ------------------
 The Protar app works only PostGIS as database backends. To point the app
@@ -53,6 +58,11 @@ change steps. Then scripts can be called as follows::
     export CORINE_DATA_DIRECTORY=/path/to/corine/data
     ./manage.py runscript corine.scripts.load
 
+The data volume of the vector format of the Corine land cover is quite
+substantial. There are 8191080 polygons if counting all years and including
+change data. The size of this table in PostGIS is about 30GB, and it requires
+another 30GB for the index.
+
 Parse Natura Data
 -----------------
 To load the Natura 2000 protected areas into the database, specify the Natura
@@ -63,6 +73,9 @@ following command::
 
     export NATURA_DATA_DIRECTORY=/path/to/natura/data
     ./manage.py runscript natura.scripts.load
+
+The natura data consists of 27372 protected areas, the size of the table and
+index is around 1GB.
 
 Compute Intersection
 --------------------
@@ -93,6 +106,10 @@ With Celery up and running, execute the following script to add tasks to the
 queue that will build the intersection data squentially::
 
     ./manage.py runscript natura.scripts.intersect
+
+Due to the data volume of both the Corine and the Natura data, this
+intersection is a substantial task. On a server with 4 CPUs and SSD disks
+the intersection took roughly 20 hours to complete.
 
 __ http://www.celeryproject.org/
 __ http://redis.io/

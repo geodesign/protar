@@ -22,7 +22,7 @@ Natura 2000
 The `Natura 2000`__ dataset is a network of protected areas throughout Europe. It
 was established under the 1992 Habitats Directive and is the centrepiece of EU
 nature & biodiversity policy. The network currently covers about 18% of Europe's
-territory.
+territory and consists of 27372 protected areas.
 
 The data is contributed by regional authorities to a centralized database,
 which is managed by the European Environment Agency (EEA). The database
