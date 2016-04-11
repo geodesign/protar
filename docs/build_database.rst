@@ -121,6 +121,10 @@ Due to the data volume of both the Corine and the Natura data, this
 intersection is a substantial task. On a server with 4 CPUs and SSD disks
 the intersection took roughly 20 hours to complete.
 
+__ http://www.celeryproject.org/
+__ https://www.rabbitmq.com/
+__ http://redis.io/
+
 Dump the data
 -------------
 The protar frontend does not make any use of the Corine landcover geometries
@@ -130,6 +134,15 @@ dump the data without the patches, use the following command::
 
     pg_dump protar --exclude-table-data=corine_patch -F c -v -f protar.dump
 
-__ http://www.celeryproject.org/
-__ http://redis.io/
-__ https://www.rabbitmq.com/
+Load raster data
+----------------
+The parsing of the raster version of the corine data is for visualization
+purposes only. It is a more manual process that is done through the admin
+utilities of the `django-raster`__ package. To load the rasters, create one
+``RasterLayer`` object for each raster through the admin, and link it to one
+``CorineLayer`` object in the ``corine`` app. The frontend interface expects
+one ``CorineLayer`` object for each year (1990, 2000, 2006, and 2012). The
+raster layers span all of europe, and hence the parsing takes about 4 hours
+per layer and significant amounts of disk space are required during parsing.
+
+__ http://github.com/geodesign/django-raster
