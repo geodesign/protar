@@ -8,7 +8,7 @@ requirejs.config({
         text: '../../components/text/text',
         leaflet: '../../components/leaflet/dist/leaflet',
         sync: '../../components/leaflet.sync/L.Map.Sync',
-        chartjs: '../../components/chartjs/Chart',
+        chartjs: '../../components/Chart.js/dist/Chart',
         d3: '../../components/d3/d3',
         sankey: '../../components/d3-sankey/sankey/sankey',
         moment: '../../components/moment/moment',
