@@ -7,10 +7,10 @@ from regions.serializers import RegionGeoSerializer, RegionSerializer
 
 
 class RegionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Region.objects.all().order_by('level')
+    queryset = Region.objects.defer('geom').order_by('level')
     serializer_class = RegionSerializer
     filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend, )
-    search_fields = ('country', 'name0', 'name1', 'name2', 'name3', 'name4', )
+    search_fields = ('country', 'n0nm', 'n0nme', 'n1nm', 'n2nm', 'n3nm', )
     filter_fields = ('country', 'level', )
 
 
