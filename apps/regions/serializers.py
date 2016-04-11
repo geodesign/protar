@@ -29,16 +29,28 @@ class RegionSerializer(serializers.ModelSerializer):
         return covers
 
     def get_name0(self, obj):
-        return obj.n0nme[3:] if obj.n0nme else ''
+        rawname = obj.n0nme if obj.n0nme else ''
+        if 'No NUTS' in rawname:
+            return obj.country.name
+        return rawname[3:].title()
 
     def get_name1(self, obj):
-        return obj.n1nm[4:] if obj.n1nm else ''
+        rawname = obj.n1nm if obj.n1nm else ''
+        if 'No NUTS' in rawname:
+            return ''
+        return rawname[4:].title()
 
     def get_name2(self, obj):
-        return obj.n2nm[5:] if obj.n2nm else ''
+        rawname = obj.n2nm if obj.n2nm else ''
+        if 'No NUTS' in rawname:
+            return ''
+        return rawname[5:].title()
 
     def get_name3(self, obj):
-        return obj.n3nm[6:] if obj.n3nm else ''
+        rawname = obj.n3nm if obj.n3nm else ''
+        if 'No NUTS' in rawname:
+            return ''
+        return rawname[6:].title()
 
 
 class RegionGeoSerializer(GeoFeatureModelSerializer):
