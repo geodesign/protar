@@ -136,7 +136,7 @@ __ https://github.com/geodesign/protar/blob/master/LICENSE
 Protar logo
 -----------
 The protar logo is a derivative work of the `Natura 2000 logo`__, which is
-released under the `CC-BY-SA`__ 3.0 creative commons license. The protar logo
+released under the `CC-BY-SA 3.0`__ creative commons license. The protar logo
 is therefore also released under the same license.
 
 __ https://en.wikipedia.org/wiki/Natura_2000#/media/File:Natura_2000_logo.png

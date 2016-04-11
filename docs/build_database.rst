@@ -140,9 +140,28 @@ The parsing of the raster version of the corine data is for visualization
 purposes only. It is a more manual process that is done through the admin
 utilities of the `django-raster`__ package. To load the rasters, create one
 ``RasterLayer`` object for each raster through the admin, and link it to one
-``CorineLayer`` object in the ``corine`` app. The frontend interface expects
-one ``CorineLayer`` object for each year (1990, 2000, 2006, and 2012). The
-raster layers span all of europe, and hence the parsing takes about 4 hours
-per layer and significant amounts of disk space are required during parsing.
+``CorineLayer`` object in the ``corine`` app.  The raster layers span all of
+europe, and hence the parsing takes about 4 hours per layer and significant
+amounts of disk space are required during parsing.
+
+If you want to use the Django shell to create those rasters, use something
+like the following command, this will create the raster objects and trigger
+the parsing through celery::
+
+
+    from raster.models import RasterLayer
+    from django.core.files import File
+    rst = File(open('/path/to/corine/data/g100_clc90_V18_5.tif', 'rb'))
+    lyr = RasterLayer.objects.create(
+        name="CLC90 V18.5", datatype='ca', srid=3035, rasterfile=rst
+    )
+
+With that, reference the raster layer as a corine layer in the corine app.
+The frontend interface expects one ``CorineLayer`` object for each available
+year (1990, 2000, 2006, and 2012)::
+
+    from corine.models import CorineLayer
+    CorineLayer.objects.create(rasterlayer=lyr, year=1990)
+
 
 __ http://github.com/geodesign/django-raster
