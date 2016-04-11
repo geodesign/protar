@@ -73,19 +73,13 @@ over broad trends on a regional and country level.
 
 The geographical boundaries used for aggregation are derived from the
 boundaries of the statistical areas of the  `Nomenclature of Territorial Units
-for Statistics (NUTS)`__ geographical boundaries.
-
-The version of NUTS boundaries used here is the `EuroBoundaryMap`__, which is
-maintained by EuroGeographics, a membership association and acknowledged voice
-of the European National Mapping, Cadastre and Land Registry Authorities. The
-dataset is released under `EuroGeographic's open data policy`__, allowing its
-use free of charge for commercial and non-commercial purposes. The data can
-be accessed `here`__.
+for Statistics (NUTS)`__ geographical boundaries. These boundaries are
+distributed through the EEA data portal under the same open access policy as
+the CLC dataset. It can be used free of charge for commercial and
+non-commercial purposes. The data can be accessed `here`__.
 
 __ https://en.wikipedia.org/wiki/Nomenclature_of_Territorial_Units_for_Statistics
-__ http://www.eurogeographics.org/products-and-services/euroboundarymap
-__ http://www.eurogeographics.org/content/eurogeographics-euroglobalmap-opendata
-__ http://www.eurogeographics.org/form/topographic-data-eurogeographics
+__ http://www.eea.europa.eu/data-and-maps/data/administrative-land-accounting-units
 
 Base Maps
 ^^^^^^^^^
