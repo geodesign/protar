@@ -32,6 +32,12 @@ define([
             var search = new Search();
             search.render();
             this.getRegion('search').show(search);
+            // Allow overflow, but only if menu is opened already
+            this.ui.navbar_dropdown.on('shown.bs.collapse', function() {
+                _this.ui.navbar_dropdown.addClass('navbar-collapse-overflow-visible');
+            }).on('hide.bs.collapse', function() {
+                _this.ui.navbar_dropdown.removeClass('navbar-collapse-overflow-visible');
+            });
             // Collapse element when search is selected.
             search.on('select', function(){
                 if(_this.ui.search_toggle.is(':visible')){

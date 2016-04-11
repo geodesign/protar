@@ -74,7 +74,15 @@ define([
             chart1990: '#chart-1990',
             chart2000: '#chart-2000',
             chart2006: '#chart-2006',
-            chart2012: '#chart-2012'
+            chart2012: '#chart-2012',
+
+            doughnuts: '.doughnuts',
+            bars: '.bars',
+            graph_switch: '.graph-toggle'
+        },
+
+        events: {
+            'click @ui.graph_switch': 'toggleGraphs'
         },
 
         createCharts: function(){
@@ -229,7 +237,7 @@ define([
                 var set = _.range(data.labels.length);
                 _.each(val, function(x){
                     var index = _.indexOf(data.labels, x.year);
-                    set[index] = x.area/(1000*1000);  // Converting data to km2
+                    set[index] = x.area
                 });
                 data.datasets.push({label: val[0].label, backgroundColor: val[0].color, data: set});
             });
@@ -255,6 +263,11 @@ define([
                     }
                 }
             });
+        },
+
+        toggleGraphs: function(){
+            this.ui.doughnuts.toggle();
+            this.ui.bars.toggle();
         },
 
         createMaps: function(){

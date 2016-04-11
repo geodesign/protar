@@ -40,13 +40,18 @@ define([
         onShow: function(){
             var _this = this;
 
+            // Create bounds for europe
+            var southWest = L.latLng(28, -19),
+                northEast = L.latLng(71, 35),
+                bounds = L.latLngBounds(southWest, northEast);
+
             // Map setup
             this.LMap = L.map(this.ui.map[0], {
-                center: new L.LatLng(54.546579538405034, 18.720703125),
-                zoom: 7,
+                //center: new L.LatLng(54.546579538405034, 18.720703125),
+                zoom: 4,
                 minZoom: 0,
                 maxZoom: 15
-            });
+            }).fitBounds(bounds);
 
             // Base layer
             var basemap = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{

@@ -8,9 +8,9 @@
                 </small>
             </h2>
             <p>
-                <% if(level > 0) { %><%= name0 %><% } %>
-                <% if(level > 1) { %>- <%= name1 %><% } %>
-                <% if(level > 2) { %>- <%= name2 %><% } %>
+                <% if(level > 0 & name0) { %><%= name0 %><% } %>
+                <% if(level > 1 & name1) { %>- <%= name1 %><% } %>
+                <% if(level > 2 & name2) { %>- <%= name2 %><% } %>
             </p>
         <% } else { %>
             <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
@@ -21,34 +21,29 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-default">
-            <div class="panel-heading">Yearly Summaries</div>
+            <div class="panel-heading">Yearly Summaries<div class="graph-toggle pull-right"><span class="glyphicon glyphicon-dashboard"></span></div></div>
             <div class="panel-body">
-                <div class="col-md-3">
-                    <h4>1990</h4>
-                    <canvas id="chart-1990"></canvas>
+                <div class="doughnuts">
+                    <div class="col-sm-3">
+                        <h4>1990</h4>
+                        <canvas id="chart-1990"></canvas>
+                    </div>
+                    <div class="col-sm-3">
+                        <h4>2000</h4>
+                        <canvas id="chart-2000"></canvas>
+                    </div>
+                    <div class="col-sm-3">
+                        <h4>2006</h4>
+                        <canvas id="chart-2006"></canvas>
+                    </div>
+                    <div class="col-sm-3">
+                        <h4>2012</h4>
+                        <canvas id="chart-2012"></canvas>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <h4>2000</h4>
-                    <canvas id="chart-2000"></canvas>
+                <div class="bars">
+                    <canvas id="barchart"></canvas>
                 </div>
-                <div class="col-md-3">
-                    <h4>2006</h4>
-                    <canvas id="chart-2006"></canvas>
-                </div>
-                <div class="col-md-3">
-                    <h4>2012</h4>
-                    <canvas id="chart-2012"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">Yearly Summaries Alternative</div>
-            <div class="panel-body">
-                <canvas id="barchart"></canvas>
             </div>
         </div>
     </div>
@@ -58,19 +53,19 @@
         <div class="panel panel-default">
             <div class="panel-heading">Maps</div>
             <div class="panel-body">
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <h4>1990</h4>
                     <div id="map-1990" class="map"></div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <h4>2000</h4>
                     <div id="map-2000" class="map"></div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <h4>2006</h4>
                     <div id="map-2006" class="map"></div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <h4>2012</h4>
                     <div id="map-2012" class="map"></div>
                 </div>

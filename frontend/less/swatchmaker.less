@@ -1,21 +1,28 @@
 @import "../components/bootstrap/less/bootstrap.less";
 @import "../components/bootswatch/yeti/variables.less";
+@grid-float-breakpoint:     @screen-md-min;  // Override menu collapse point
 @import "../components/bootswatch/yeti/bootswatch.less";
 @import "../components/bootstrap/less/utilities.less";
 // Overwrite default icon location from bootstrap
 @icon-font-path: "../../components/bootstrap/fonts/";
 // Declare responsive menu column
 .menu-md-3 {
-    @media(min-width: @screen-sm-min){
+    @media(min-width: @screen-md-min){
         .make-md-column(3);
         float: right !important;
     }
-    @media(max-width: @screen-sm-min){
+    @media(max-width: @screen-md-min){
         position: fixed;
         max-height: 100%;
         overflow: auto;
         padding-left: 0px;
         padding-right: 0px;
         box-shadow: 0px 2px 4px #CCC;
+    }
+}
+.navbar-globe{
+    display: none;
+    @media(min-width: @screen-md-min){
+        display: block;
     }
 }
