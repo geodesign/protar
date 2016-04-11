@@ -19,6 +19,8 @@ define([
             layout.on('navigate:explorer', function(){
                 // Expand main region to container
                 App.rootView.getRegion('mainRegion').$el.removeClass('container');
+                App.rootView.getRegion('menuRegion').$el.show();
+                App.rootView.getRegion('menuRegion').$el.addClass('menu-explorer');
                 // Hide app region
                 App.rootView.getRegion('appRegion').$el.hide();
                 App.rootView.getRegion('landingRegion').$el.hide();

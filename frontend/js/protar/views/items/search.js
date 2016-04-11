@@ -71,7 +71,7 @@ define([
             // Bind select event to navigate to site.
             this.ui.input.bind('typeahead:select', function(ev, suggestion) {
                 // Decide if a site or a region was selected
-                if(typeof suggestion.inspireid == 'undefined'){
+                if(typeof suggestion.level == 'undefined'){
                     var urlbase = 'site/';
                 } else {
                     var urlbase = 'region/';

@@ -24,9 +24,10 @@ define([
             start: function() {
                 // Reduce main region to container
                 App.rootView.getRegion('mainRegion').$el.addClass('container');
-                // Hide explorer region
+                // Hide menu, app and explorer region
                 App.rootView.getRegion('explorerRegion').$el.hide();
                 App.rootView.getRegion('appRegion').$el.hide();
+                App.rootView.getRegion('menuRegion').$el.hide();
                 // Show app region
                 var landing_region = App.rootView.getRegion('landingRegion');
                 landing_region.$el.show();
@@ -38,6 +39,7 @@ define([
                 layout.on('navigate:explorer', function(){
                     // Expand main region to container
                     App.rootView.getRegion('mainRegion').$el.removeClass('container');
+                    App.rootView.getRegion('menuRegion').$el.show();
                     // Hide app region
                     App.rootView.getRegion('appRegion').$el.hide();
                     App.rootView.getRegion('landingRegion').$el.hide();

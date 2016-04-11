@@ -1,14 +1,9 @@
 #menuregion {
+    margin-top: 47px;
     display: hidden;
-    #menu-main {
-        background-color: white;
-        position: fixed;
-        border-top: none;
-        padding-top: 15px;
-        z-index: 99999;
-    }
-    max-height: 100%;
-    overflow: auto;
+    right: 0px;
+    background-color: white;
+    z-index: 9999;
     .btn-group {
         width: 100%;
     }
@@ -18,4 +13,31 @@
     .years, .levels {
         margin-bottom: 15px;
     }
+    .list-group-item.active {
+        background-color: #FFF;
+        color: #CCC;
+        border-color: #EEE;
+        .legend-colorbox {
+            background-color: #EEE !important;
+        }
+        &:hover{
+            background-color: #f5f5f5;
+        }
+    }
+    .menu-layout {
+        background-color: white;
+        border-top: none;
+        padding-top: 15px;
+        z-index: 99999;
+    }
+    &.menu-explorer {
+        position: fixed;
+        max-height: 100%;
+        overflow: auto;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+}
+#menu-main {
+    border-top: none;
 }

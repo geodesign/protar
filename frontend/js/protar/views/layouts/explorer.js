@@ -31,10 +31,10 @@ define([
 
         initialize: function(){
             _.bindAll(this, 'updateGeometries', 'updateRaster');
-            this.sites_layer_min_zoom = 9;
-            this.regions_layer_min_zoom = 7;
-            this.regions_fetched = {0: [], 1: []};
-            this.sites_fetched = [];
+            this.nuts0_min_zoom = 6;
+            this.nuts1_min_zoom = 7;
+            this.nuts2_min_zoom = 8;
+            this.nuts3_min_zoom = 9;
         },
 
         onShow: function(){
@@ -60,7 +60,7 @@ define([
                 var tile_values = e.url.match(/\d+/g);
                 var tile_zoom = parseInt(tile_values[0]);
                 var tile_lookup = tile_values.join('/');
-                if(tile_zoom > _this.sites_layer_min_zoom) {
+                if(tile_zoom > _this.nuts3_min_zoom) {
                     _this.getSites(tile_lookup);
                 } else {
                     _this.getRegions(tile_lookup, tile_zoom);
@@ -85,51 +85,53 @@ define([
             };
 
             // Create empty vector layers to add data to
-            this.country_layer = L.geoJson(null, {
+            this.nuts0_layer = L.geoJson(null, {
                 style: style
-            }).addTo(this.LMap);
-
-            this.regions_layer = L.geoJson(null, {
+            });
+            this.nuts1_layer = L.geoJson(null, {
                 style: style
-            }).addTo(this.LMap);
-
+            });
+            this.nuts2_layer = L.geoJson(null, {
+                style: style
+            });
+            this.nuts3_layer = L.geoJson(null, {
+                style: style
+            });
             this.sites_layer = L.geoJson(null, {
                 style: style
-            }).addTo(this.LMap);
+            });
 
             var mouseover = function(e){ e.layer.setStyle({fillOpacity: 0.2})};
             var mouseout = function(e){ e.layer.setStyle({fillOpacity: 0})};
 
-            this.country_layer.on('mouseover', mouseover);
-            this.country_layer.on('mouseout', mouseout);
-
-            this.regions_layer.on('mouseover', mouseover);
-            this.regions_layer.on('mouseout', mouseout);
+            this.nuts0_layer.on('mouseover', mouseover);
+            this.nuts0_layer.on('mouseout', mouseout);
+            this.nuts1_layer.on('mouseover', mouseover);
+            this.nuts1_layer.on('mouseout', mouseout);
+            this.nuts2_layer.on('mouseover', mouseover);
+            this.nuts2_layer.on('mouseout', mouseout);
+            this.nuts3_layer.on('mouseover', mouseover);
+            this.nuts3_layer.on('mouseout', mouseout);
 
             this.sites_layer.on('mouseover', mouseover);
             this.sites_layer.on('mouseout', mouseout);
 
             this.connectMenu();
+            this.updateGeometries();
         },
 
-        getRegions: function(tile, zoom, page, exclude){
+        getRegions: function(tile, zoom, page){
             var _this = this;
             page = page ? page : 1;
             // Compute region detail level from zoom
-            var level = zoom < this.regions_layer_min_zoom ? 0 : 1;
-            var layer = level ? this.regions_layer : this.country_layer;
-            // Compile list of already fetched features keep exclude tag
-            // constant over pages of a tile, as otherwise the ordering might
-            // get wrong and not all features might be fetched correctly.
-            if(!exclude) {
-                exclude = this.regions_fetched[level].join(',');
-            }
+            var level = zoom > this.nuts2_min_zoom ? 3 : (zoom >  this.nuts1_min_zoom) ? 2 : (zoom > this.nuts0_min_zoom) ? 1 : 0;
+            var layer = this['nuts' + level + '_layer'];
+
             // Setup search parameters
             var params = {
                 level: level,
                 page: page,
                 tile: tile
-                //exclude: exclude
             };
             params = {data: $.param(params)};
             // Create regions collection and fetch data
@@ -147,10 +149,9 @@ define([
                 layer.addData(data);
                 // Recursively get next page if exists.
                 if(data.next){
-                    _this.getRegions(tile, zoom, page + 1, exclude);
+                    _this.getRegions(tile, zoom, page + 1);
                 } else {
                     layer.eachLayer(function(layer){
-                        _this.regions_fetched[level].push(layer.feature.id);
                         // Add interactivity when all regions are loaded
                         layer.on('click', function(){
                             Backbone.history.navigate('region/' + this.feature.id, {trigger: true});
@@ -213,18 +214,37 @@ define([
         },
 
         updateGeometries: function(){
-            if(this.LMap.getZoom() < this.regions_layer_min_zoom) {
-                if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
-                if(this.LMap.hasLayer(this.regions_layer)) this.LMap.removeLayer(this.regions_layer);
-                if(!this.LMap.hasLayer(this.country_layer)) this.LMap.addLayer(this.country_layer);
-            } else if(this.LMap.getZoom() < this.sites_layer_min_zoom) {
-                if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
-                if(this.LMap.hasLayer(this.country_layer)) this.LMap.removeLayer(this.country_layer);
-                if(!this.LMap.hasLayer(this.regions_layer)) this.LMap.addLayer(this.regions_layer);
-            } else {
-                if(this.LMap.hasLayer(this.country_layer)) this.LMap.removeLayer(this.country_layer);
-                if(this.LMap.hasLayer(this.regions_layer)) this.LMap.removeLayer(this.regions_layer);
+            var zoom = this.LMap.getZoom()
+            if(zoom > this.nuts3_min_zoom) {
                 if(!this.LMap.hasLayer(this.sites_layer)) this.LMap.addLayer(this.sites_layer);
+                if(this.LMap.hasLayer(this.nuts0_layer)) this.LMap.removeLayer(this.nuts0_layer);
+                if(this.LMap.hasLayer(this.nuts1_layer)) this.LMap.removeLayer(this.nuts1_layer);
+                if(this.LMap.hasLayer(this.nuts2_layer)) this.LMap.removeLayer(this.nuts2_layer);
+                if(this.LMap.hasLayer(this.nuts3_layer)) this.LMap.removeLayer(this.nuts3_layer);
+            } else if(zoom > this.nuts2_min_zoom) {
+                if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
+                if(this.LMap.hasLayer(this.nuts0_layer)) this.LMap.removeLayer(this.nuts0_layer);
+                if(this.LMap.hasLayer(this.nuts1_layer)) this.LMap.removeLayer(this.nuts1_layer);
+                if(this.LMap.hasLayer(this.nuts2_layer)) this.LMap.removeLayer(this.nuts2_layer);
+                if(!this.LMap.hasLayer(this.nuts3_layer)) this.LMap.addLayer(this.nuts3_layer);
+            } else if(zoom > this.nuts1_min_zoom) {
+                if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
+                if(this.LMap.hasLayer(this.nuts0_layer)) this.LMap.removeLayer(this.nuts0_layer);
+                if(this.LMap.hasLayer(this.nuts1_layer)) this.LMap.removeLayer(this.nuts1_layer);
+                if(!this.LMap.hasLayer(this.nuts2_layer)) this.LMap.addLayer(this.nuts2_layer);
+                if(this.LMap.hasLayer(this.nuts3_layer)) this.LMap.removeLayer(this.nuts3_layer);
+            } else if(zoom > this.nuts0_min_zoom) {
+                if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
+                if(this.LMap.hasLayer(this.nuts0_layer)) this.LMap.removeLayer(this.nuts0_layer);
+                if(!this.LMap.hasLayer(this.nuts1_layer)) this.LMap.addLayer(this.nuts1_layer);
+                if(this.LMap.hasLayer(this.nuts2_layer)) this.LMap.removeLayer(this.nuts2_layer);
+                if(this.LMap.hasLayer(this.nuts3_layer)) this.LMap.removeLayer(this.nuts3_layer);
+            } else {
+                if(this.LMap.hasLayer(this.sites_layer)) this.LMap.removeLayer(this.sites_layer);
+                if(!this.LMap.hasLayer(this.nuts0_layer)) this.LMap.addLayer(this.nuts0_layer);
+                if(this.LMap.hasLayer(this.nuts1_layer)) this.LMap.removeLayer(this.nuts1_layer);
+                if(this.LMap.hasLayer(this.nuts2_layer)) this.LMap.removeLayer(this.nuts2_layer);
+                if(this.LMap.hasLayer(this.nuts3_layer)) this.LMap.removeLayer(this.nuts3_layer);
             }
         }
     });

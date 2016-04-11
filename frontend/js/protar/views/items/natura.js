@@ -115,6 +115,7 @@ define([
                 var nom = _this.nomenclatures.filter(function(nom){
                     return nom.id == cover.nomenclature;
                 })[0];
+                if(!nom) return;
 
                 cover.code = nom.attributes['code_' + App.menuView.current_level];
                 cover.label = nom.attributes['label_' + App.menuView.current_level];
@@ -228,7 +229,7 @@ define([
                 var set = _.range(data.labels.length);
                 _.each(val, function(x){
                     var index = _.indexOf(data.labels, x.year);
-                    set[index] = x.area;
+                    set[index] = x.area/(1000*1000);  // Converting data to km2
                 });
                 data.datasets.push({label: val[0].label, backgroundColor: val[0].color, data: set});
             });

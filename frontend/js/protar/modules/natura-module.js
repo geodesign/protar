@@ -54,6 +54,8 @@ define([
                 // Hide explorer and landing region
                 App.rootView.getRegion('explorerRegion').$el.hide();
                 App.rootView.getRegion('landingRegion').$el.hide();
+                App.rootView.getRegion('menuRegion').$el.show();
+                App.rootView.getRegion('menuRegion').$el.removeClass('menu-explorer');
                 // Show app region
                 var app_region = App.rootView.getRegion('appRegion');
                 app_region.$el.show();

@@ -2,7 +2,8 @@
 {% load compress %}
 <html lang="en">
 <head>
-    <title>Protar</title>
+    <title>protar.org</title>
+    <link rel="icon" type="image/png" href="{{ STATIC_URL }}images/protar-favicon.png">
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -33,7 +34,6 @@
             <div id="explorerregion" class="co-md-9"></div>
         </div>
     </div>
-    <!--<div id="explorerregion" class="container fill"></div>-->
 
     {% compress js %}
         <script language="javascript">var STATIC_URL = "{{ STATIC_URL }}";</script>

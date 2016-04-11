@@ -12,6 +12,7 @@ define([
     ){
     var View = Marionette.LayoutView.extend({
         template: _.template(template),
+        className: 'menu-layout',
         initialize: function(){
             var _this = this;
             _.bindAll(this, 'createLegend');

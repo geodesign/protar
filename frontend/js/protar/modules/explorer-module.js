@@ -27,6 +27,8 @@ define([
             start: function() {
                 // Expand main region to full viewport
                 App.rootView.getRegion('mainRegion').$el.removeClass('container');
+                App.rootView.getRegion('menuRegion').$el.show();
+                App.rootView.getRegion('menuRegion').$el.addClass('menu-explorer');
                 // Hide app and landing region
                 App.rootView.getRegion('appRegion').$el.hide();
                 App.rootView.getRegion('landingRegion').$el.hide();
@@ -39,7 +41,6 @@ define([
                     layout.render();
                     explorer_region.show(layout);
                 }
-                var explorer_region = App.rootView.getRegion('explorerRegion');
             }
         });
 

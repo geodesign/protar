@@ -17,7 +17,6 @@ define([
 
         ui: {
             navigate_home: '.navigate-home',
-            navigate_dashboard: '.navigate-dashboard',
             navigate_explorer: '.navigate-explorer',
             search_toggle: '.navbar-toggle',
             navbar_dropdown: '.navbar-collapse'
@@ -25,7 +24,6 @@ define([
 
         triggers: {
             'click @ui.navigate_home': 'navigate:home',
-            'click @ui.navigate_dashboard': 'navigate:dashboard',
             'click @ui.navigate_explorer': 'navigate:explorer'
         },
 
