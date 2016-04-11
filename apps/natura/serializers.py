@@ -64,9 +64,17 @@ class ManagementSerializer(serializers.ModelSerializer):
 
 class CoverSerializer(serializers.ModelSerializer):
 
+    area = serializers.SerializerMethodField()
+
     class Meta:
         model = Cover
         exclude = ('site', )
+
+    def get_area(self, obj):
+        """
+        Return the area as km2.
+        """
+        return obj.area / 1e6
 
 
 class SiteSerializer(serializers.ModelSerializer):
