@@ -110,7 +110,7 @@ USE_L10N = True
 USE_TZ = False
 
 # Static files
-STATIC_ROOT = os.environ.get('STATIC_ROOT', '')
+STATIC_ROOT = os.environ.get('STATIC_ROOT', '/protar_static')
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
@@ -125,7 +125,7 @@ STATICFILES_FINDERS = (
 )
 
 # Media
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', '/protar_media')
 MEDIA_URL = '/media/'
 
 COMPRESS_OFFLINE = True
