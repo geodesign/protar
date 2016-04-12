@@ -126,10 +126,6 @@ STATICFILES_FINDERS = (
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 MEDIA_URL = '/media/'
 
-## Compression
-#if 'STATICFILES_STORAGE' in locals():
-    #COMPRESS_STORAGE = STATICFILES_STORAGE
-
 COMPRESS_JS_FILTERS = [
     'compressor.filters.jsmin.JSMinFilter'
 ]
