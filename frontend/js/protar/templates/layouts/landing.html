@@ -1,13 +1,12 @@
 <div class="page-header" id="banner">
     <div class="row">
         <div class="col-sm-12">
-            <h1>Change Explorer</h1>
-            <p class="lead">Corine Landcover Change in Natura 2000 Preserved Areas</p>
+            <h2>Protected Area Change Explorer</h2>
+            <p class="lead">Observe Corine Landcover Change in Natura 2000 Preserved Areas</p>
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            <!--<input type="text" class="form-control typeahead" placeholder="Type to search protected Areas">-->
             <div class="search-container"></div>
 
             <p>or</p>
@@ -20,12 +19,10 @@
     <div class="col-sm-8">
         <h2>Natura 2000</h2>
         <p>
-        A paragraph about natura 2000.
-
-        We propose the development of a web-based application where users can explore land cover
-        change in protected areas across Europe. The application will quantify the current status and
-        historical change in land cover within Europe's natural reserves. An intuitive interface with
-        interactive graphs and maps will make this information understandable for everyone.
+        Over the last two decades Europe has grown one of the largest network of nature reserves in the world,
+        protecting about 18% of land in EU countries. This network of protected areas is called 
+        <a href="http://ec.europa.eu/environment/nature/natura2000/">Natura 2000</a>. With Protar, we invite you to
+        explore the current status and historical change in land cover in these areas. 
         </p>
     </div>
     <div class="col-sm-4"><img src="<%= STATIC_URL %>images/Natura_2000_logo.png" alt="Nat2000 Image" class="img-rounded landing-img"></div>
@@ -36,12 +33,11 @@
     <div class="col-sm-8">
         <h2>Corine Land Cover</h2>
         <p>
-        A paragraph about Corine Land Cover.
-
-        We propose the development of a web-based application where users can explore land cover
-        change in protected areas across Europe. The application will quantify the current status and
-        historical change in land cover within Europe's natural reserves. An intuitive interface with
-        interactive graphs and maps will make this information understandable for everyone.
+        The <a href="https://wiki.openstreetmap.org/wiki/Corine_Land_Cover">Corine Land Cover Dataset</a>
+        is a map that describes the land cover for all of Europe in an unified framework.
+        It describes what currently is located in any given area for most of Europe for four points in time: 1990,
+        2000, 2006, and 2012. We used this comprehensive dataset to calculate current and historic conditions of
+        the Natura 2000 protected areas.
         </p>
     </div>
 </div>
@@ -50,30 +46,26 @@
     <div class="col-sm-8">
         <h2>MyGeoss</h2>
         <p>
-        A paragraph about <a href="http://digitalearthlab.jrc.ec.europa.eu/mygeoss/call.cfm" target="_blank">MyGeoss</a>.
-        This application has been developed within the MyGEOSS project, which has received funding from the European Union’s
-        Horizon 2020 research and innovation programme.
-        We propose the development of a web-based application where users can explore land cover
-        change in protected areas across Europe. The application will quantify the current status and
-        historical change in land cover within Europe's natural reserves. An intuitive interface with
-        interactive graphs and maps will make this information understandable for everyone.
+        This application has been developed within the
+        <a href="http://digitalearthlab.jrc.ec.europa.eu/mygeoss/" target="_blank">MyGeoss</a> project, which has
+        received funding from the European Union’s Horizon 2020 research and innovation programme.
+        Under the MyGeoss project, a series of web and mobile applications are being developed, all of which
+        are based on large scale geographic data. The increased avilability of data from the Global Earth
+        Observation System of Systems (GEOSS) project, has motivated a call to encourage use of open data.
+        
+        Protar is one of the winners of the second call of that project. It is an open source and opend data
+        application. For more information about the technical background of this application, visit the 
+        <a href="https://protar.readthedocs.org">Protar documentation</a>.
         </p>
     </div>
-    <div class="col-sm-4"><img src="<%= STATIC_URL %>images/mygeoss.png" alt="MyGeoss Logo" class="img-rounded anding-img"></div>
+    <div class="col-sm-4"><img src="<%= STATIC_URL %>images/mygeoss.png" alt="MyGeoss Logo" class="img-rounded center-block"></div>
 </div>
-<hr>
+
+
 <div class="row">
-    <div class="col-sm-8">
-        <h2>JRC</h2>
-        <p>
-        A paragraph about <a href="http://digitalearthlab.jrc.ec.europa.eu/mygeoss/call.cfm" target="_blank">MyGeoss</a>.
-        This application has been developed within the MyGEOSS project, which has received funding from the European Union’s
-        Horizon 2020 research and innovation programme.
-        We propose the development of a web-based application where users can explore land cover
-        change in protected areas across Europe. The application will quantify the current status and
-        historical change in land cover within Europe's natural reserves. An intuitive interface with
-        interactive graphs and maps will make this information understandable for everyone.
-        </p>
+    <div class="col-sm-12 landing-footer">
+        <hr>
+        <div><img src="<%= STATIC_URL %>images/ec_logo.gif" alt="JRC Logo" class="center-block ec-logo"><div>
+        <p class="text-center"><small>&copy 2016 European Comission.</small></p>
     </div>
-    <div class="col-sm-4"><img src="<%= STATIC_URL %>images/jrc.jpg" alt="JRC Logo" class="img-rounded landing-img"></div>
 </div>
