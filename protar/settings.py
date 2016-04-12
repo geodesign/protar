@@ -11,7 +11,7 @@ DEBUG = os.environ.get('DEBUG', False)
 
 INTERNAL_IPS = ['127.0.0.1']
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['protar.org', 'www.protar.org']
 
 # Allow all CORS requests for the api
 CORS_URLS_REGEX = r'^/api/.*$'
@@ -107,25 +107,14 @@ USE_L10N = True
 
 USE_TZ = False
 
-# AWS secrets
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', '')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
-
 # Static files
 STATIC_ROOT = os.environ.get('STATIC_ROOT', '')
+STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'frontend'),
 )
 
-AWS_STORAGE_BUCKET_NAME_STATIC = os.environ.get('AWS_STORAGE_BUCKET_NAME_STATIC', '')
-
-if AWS_STORAGE_BUCKET_NAME_STATIC:
-    STATICFILES_STORAGE = 'protar.s3storages.StaticRootCachedS3BotoStorage'
-
-    STATIC_URL = 'http://%s.s3.amazonaws.com/' % os.environ.get('AWS_STORAGE_BUCKET_NAME_STATIC')
-else:
-    STATIC_URL = '/static/'
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -134,16 +123,12 @@ STATICFILES_FINDERS = (
 )
 
 # Media
-AWS_STORAGE_BUCKET_NAME_MEDIA = os.environ.get('AWS_STORAGE_BUCKET_NAME_MEDIA', '')
-if AWS_STORAGE_BUCKET_NAME_MEDIA:
-    MEDIA_URL = 'http://%s.s3.amazonaws.com/' % os.environ.get('AWS_STORAGE_BUCKET_NAME_MEDIA')
-else:
-    MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
-    MEDIA_URL = '/media/'
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
+MEDIA_URL = '/media/'
 
-# Compression
-if 'STATICFILES_STORAGE' in locals():
-    COMPRESS_STORAGE = STATICFILES_STORAGE
+## Compression
+#if 'STATICFILES_STORAGE' in locals():
+    #COMPRESS_STORAGE = STATICFILES_STORAGE
 
 COMPRESS_JS_FILTERS = [
     'compressor.filters.jsmin.JSMinFilter'
