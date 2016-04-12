@@ -58,7 +58,20 @@ echo 'group = workers' >> /etc/supervisor/conf.d/celery.conf
 echo 'stdout_logfile = /var/log/celeryd.log' >> /etc/supervisor/conf.d/celery.conf
 echo 'stderr_logfile = /var/log/celeryd.err' >> /etc/supervisor/conf.d/celery.conf
 echo 'autostart = true' >> /etc/supervisor/conf.d/celery.conf
+# In production use a save secret key
 echo 'environment=SECRET_KEY=celerykey,DB_NAME=protar,DJANGO_SETTINGS_MODULE=protar.settings' >> /etc/supervisor/conf.d/celery.conf
+
+# Superivsed Gunicorn
+echo '[program:gunicorn]' > /etc/supervisor/conf.d/gunicorn.conf
+echo 'directory=/protar' >> /etc/supervisor/conf.d/gunicorn.conf
+echo 'command = gunicorn protar.wsgi' >> /etc/supervisor/conf.d/gunicorn.conf
+#echo 'user = www-data' >> /etc/supervisor/conf.d/gunicorn.conf
+#echo 'group = www-data' >> /etc/supervisor/conf.d/gunicorn.conf
+echo 'stdout_logfile = /var/log/gunicornd.log' >> /etc/supervisor/conf.d/gunicorn.conf
+echo 'stderr_logfile = /var/log/gunicornd.err' >> /etc/supervisor/conf.d/gunicorn.conf
+echo 'autostart = true' >> /etc/supervisor/conf.d/gunicorn.conf
+# In production use real key values
+echo 'environment=SECRET_KEY=celerykey,DB_NAME=protar,DJANGO_SETTINGS_MODULE=protar.settings' >> /etc/supervisor/conf.d/gunicorn.conf
 
 # Restart supervisor to include celery
 service supervisor restart
