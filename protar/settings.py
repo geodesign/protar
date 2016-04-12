@@ -128,8 +128,6 @@ STATICFILES_FINDERS = (
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT', '/protar_media')
 MEDIA_URL = '/media/'
 
-COMPRESS_OFFLINE = True
-
 COMPRESS_JS_FILTERS = [
     'compressor.filters.jsmin.JSMinFilter'
 ]
@@ -168,5 +166,9 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
+        'TIMEOUT': None,
+        'OPTIONS': {
+            'MAX_ENTRIES': 2000
+        }
     }
 }
