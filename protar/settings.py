@@ -11,7 +11,7 @@ DEBUG = os.environ.get('DEBUG', '') in [True, 'True']
 
 INTERNAL_IPS = ['127.0.0.1']
 
-ALLOWED_HOSTS = ['protar.org', 'www.protar.org']
+ALLOWED_HOSTS = ['*']
 
 # Allow all CORS requests for the api
 CORS_URLS_REGEX = r'^/api/.*$'
@@ -127,6 +127,8 @@ STATICFILES_FINDERS = (
 # Media
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 MEDIA_URL = '/media/'
+
+COMPRESS_OFFLINE = True
 
 COMPRESS_JS_FILTERS = [
     'compressor.filters.jsmin.JSMinFilter'
