@@ -79,6 +79,14 @@ define([
             chart2006: '#chart-2006',
             chart2012: '#chart-2012',
 
+            sankey2000: '.sankey-2000',
+            sankey2006: '.sankey-2006',
+            sankey2012: '.sankey-2012',
+
+            sankey_title2000: '.sankey-title-2000',
+            sankey_title2006: '.sankey-title-2006',
+            sankey_title2012: '.sankey-title-2012',
+
             doughnuts: '.doughnuts',
             bars: '.bars',
             graph_switch: '.graph-toggle'
@@ -123,9 +131,14 @@ define([
 
             // Attach nomenclature data to cover elements
             _.each(data, function(cover){
+                // Get nomenclature for this cover
                 var nom = _this.nomenclatures.filter(function(nom){
                     return nom.id == cover.nomenclature;
                 })[0];
+
+                // Skip this cover if its from a nomenclature that is not
+                // in the api (currently the api does not provide the
+                // nodata and unclassified elements).
                 if(!nom) return;
 
                 cover.code = nom.attributes['code_' + App.menuView.current_level];
@@ -148,7 +161,9 @@ define([
                 };
             });
 
-            // Remove change that stays within category (has effect only on aggregates)
+            // Remove change that stays within category.
+            // These changes are only possible if aggregated change stays within the same
+            // aggregate class, but is change between subclasses.
             data = _.filter(data, function(cover){ return cover.code != cover.code_previous; });
 
             // Remove excluded elements
@@ -174,20 +189,12 @@ define([
             });
         },
 
-        getUniqueAggregates: function(){
-            var data = {};
-            _.each(this.aggregates, function(agg){
-                if(data[agg.code]) return;
-                data[agg.code] = {label: agg.label, nom: agg.nomenclature, color: agg.color, code: agg.code}
-            });
-            return data;
-        },
-
         createChart: function(year){
             var _this = this;
 
             // Get data for current year
-            var data = this.aggregates.filter(function(x){return x.year == year && typeof x.code_previous == 'undefined';});
+            var data = this.aggregates.filter(function(x){return x.year == year && !x.change; });
+
             // Transform data to doughnut format
             chart_data = {
                 labels: _.pluck(data, 'label'),
@@ -200,7 +207,6 @@ define([
                 ]
             }
             // Get chart area
-            if(!this.ui['chart' + year.toString()].get) debugger;
             var ctx = this.ui['chart' + year.toString()].get(0).getContext('2d');
             // Create chart
             var chart = new Chart(ctx, {
@@ -220,9 +226,6 @@ define([
         createStackedChart: function(){
             var _this = this;
 
-            // Destroy previous chart
-            if(this.chart) this.chart.destroy();
-
             // Create data group
             var data = {
                 labels: this.model.attributes.years,
@@ -230,14 +233,14 @@ define([
             };
 
             // Remove changes, not needed for this chart
-            var agg = _.filter(this.aggregates, function(x){ return typeof x.code_previous == 'undefined'});
+            var agg = _.filter(this.aggregates, function(x){ return !x.change; });
 
             // Group by code
             var agg = _.groupBy(agg, 'code');
 
             // Create chart dataset
             _.each(agg, function(val){
-                var set = _.range(data.labels.length);
+                var set = _.map(_.range(data.labels.length), function(x){ return  0; });
                 _.each(val, function(x){
                     var index = _.indexOf(data.labels, x.year);
                     set[index] = x.area
@@ -382,13 +385,15 @@ define([
 
         createSankey: function(year){
             var data = this.createLinksNodesChange(year);
-            if(data.length == 0) return;
-
-            // Destroy previous chart
-            if(this.chart) this.chart.destroy();
+            // Hide element if no data is there
+            if(data.links.length == 0){
+                this.ui['sankey_title' + year].html('No Changes in ' + year);
+                this.ui['sankey' + year].remove();
+                return;
+            }
 
             var margin = 10;
-            var width = $("#sankey-" + year.toString()).width() - margin - margin;
+            var width = $(".sankey-" + year.toString()).width() - margin - margin;
             var height = 300 - margin - margin;
 
             var formatNumber = d3.format(",.0f");
@@ -397,7 +402,7 @@ define([
             }
             color = d3.scale.category20();
 
-            var svg = d3.select("#sankey-" + year.toString()).append("svg")
+            var svg = d3.select(".sankey-" + year.toString()).append("svg")
                 .attr("width", width + margin + margin)
                 .attr("height", height + margin + margin)
                 .append("g")
