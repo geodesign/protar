@@ -101,10 +101,11 @@ supervisorctl reread
 # Deploy steps
 git pull
 r.js -o frontend/js/build.js
-python3 manage.py collectstatic
+python3 manage.py collectstatic --no-input
 python3 manage.py compress
 python3 manage.py migrate
 supervisorctl restart gunicorn
+echo "from django.core.cache import cache; cache.clear()" | python3 manage.py shell
 
 # Nginx setup in /etc/nginx/sites-available/protar
 upstream protar_app_server {
