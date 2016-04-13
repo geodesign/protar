@@ -20,7 +20,7 @@ define([
 
     // Start backbone history on App start
     App.on('start', function(){
-        Backbone.history.start({pushState: false});
+        Backbone.history.start({pushState: true});
     });
     
     return App;
