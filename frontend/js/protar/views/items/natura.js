@@ -40,6 +40,9 @@ define([
         onShow: function(){
             var _this = this;
 
+            // Dont render if there is no data
+            if(this.model.attributes.covers == 0) return;
+
             // Get complete nomenclatures list
             this.noms_done = false;
             this.nomenclatures = new Nomenclatures();

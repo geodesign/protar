@@ -18,6 +18,7 @@
         <% } %>
     </div>
 </div>
+<% if(covers.length) { %>
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-default">
@@ -103,6 +104,18 @@
         </div>
     </div>
 </div>
+<% } else {  %>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">No Land Cover Information Found</div>
+            <div class="panel-body">
+                <p>There was no intersection of this protected area with the Corine Land cover.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>
 <% if(typeof natura2000 != 'undefined'){ %>
     <div class="row">
         <div class="col-md-12">
@@ -123,7 +136,13 @@
                     <% } %>
                     <% if(natura2000.documentation){ %>
                     <h4>Documentation</h4>
-                    <p><%= natura2000.documentation %></p><% } %>
+                    <p><%= natura2000.documentation %></p>
+                    <% } %>
+                    <% if(management){ %>
+                    <h4>Management</h4>
+                    <p>Organization: <%= management.org_name %></p>
+                    <p>E-mail: <a href="mailto:<%= management.org_email %>?Subject=Natura2000%20Conservation%20Area%20<%= sitecode %>"</a><%= management.org_email %></p>
+                    <% } %>
                 </div>
             </div>
         </div>
