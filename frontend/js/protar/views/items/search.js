@@ -2,12 +2,16 @@ define([
         'marionette',
         'bloodhound',
         'text!templates/items/search.html',
+        'text!templates/items/search-region-result.html',
+        'text!templates/items/search-site-result.html',
         'typeahead.js'
     ],
     function(
         Marionette,
         Bloodhound,
-        template
+        template,
+        templateRegionResult,
+        templateSiteResult
     ){
     var SearchView = Marionette.ItemView.extend({
         template: _.template(template),
@@ -54,7 +58,9 @@ define([
                     display: 'sitename',
                     limit: 500,
                     templates: {
-                        header: '<h4 class="tt-header">Sites</h4>'
+                        header: '<h4 class="tt-header">Sites</h4>',
+                        empty: '<h5 class="tt-header">No Natura2000 Sites found</h5>',
+                        suggestion: _.template(templateSiteResult)
                     }
                 },
                 {
@@ -63,7 +69,9 @@ define([
                     display: 'name',
                     limit: 500,
                     templates: {
-                        header: '<hr><h4 class="tt-header">Regions</h4>'
+                        header: '<hr><h4 class="tt-header">Regions</h4>',
+                        empty: '<hr><h5 class="tt-header">No Regions found.</h5>',
+                        suggestion: _.template(templateRegionResult)
                     }
                 }
             );

@@ -32,7 +32,10 @@ class Region(models.Model):
 
     @property
     def name(self):
-        rawname = getattr(self, 'n{}nm'.format(self.level))
+        if self.level == 0:
+            rawname = self.n0nme
+        else:
+            rawname = getattr(self, 'n{}nm'.format(self.level))
         if 'No NUTS' in rawname:
             return self.country.name
         return rawname[self.level + 3:].title()
