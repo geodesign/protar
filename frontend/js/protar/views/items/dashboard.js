@@ -9,7 +9,7 @@ define([
         'collections/layers',
         'views/collections/legends',
         'views/collections/layers',
-        'text!templates/items/site.html',
+        'text!templates/items/dashboard.html',
         'sankey',
         'sync'
     ], function(

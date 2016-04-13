@@ -6,8 +6,7 @@ define([
         'models/siteGeo',
         'models/region',
         'models/regionGeo',
-        'views/layouts/natura',
-        'views/items/natura'
+        'views/items/dashboard'
     ],
     function(
         Marionette,
@@ -17,11 +16,10 @@ define([
         SiteGeo,
         Region,
         RegionGeo,
-        NaturaLayoutView,
-        NaturaItemView
+        Dashboard
     ){
 
-    var NaturaModule = Marionette.Object.extend({
+    var DashboardModule = Marionette.Object.extend({
 
         initialize: function(){
             var controller = new this.Controller();
@@ -62,13 +60,13 @@ define([
                 app_region.empty();
                 // Render site or region view
                 app_region.$el.show();
-                var siteview = new NaturaItemView({model: this.model});
+                var dashboard = new Dashboard({model: this.model});
                 this.model.fetch().done(function(){
-                    App.rootView.getRegion('appRegion').show(siteview);
+                    App.rootView.getRegion('appRegion').show(dashboard);
                 });
             }
         })
     });
 
-    App.naturaModule = new NaturaModule();
+    App.dashboardModule = new DashboardModule();
 });

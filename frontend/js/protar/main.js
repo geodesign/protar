@@ -55,7 +55,7 @@ require([
         'modules/navbar-module',
         'modules/landing-module',
         'modules/explorer-module',
-        'modules/natura-module'
+        'modules/dashboard-module'
     ], function(
         App
     ){
