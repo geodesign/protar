@@ -122,7 +122,7 @@ All results are published under the `European Union Public License (EUPL)
 Version 1.1`__.
 
 __ https://en.wikipedia.org/wiki/Representational_state_transfer
-__ http://protar.org/api
+__ http://www.protar.org/api/
 __ https://github.com/ottoyiu/django-cors-headers/
 __ https://github.com/geodesign/protar/blob/master/LICENSE
 
