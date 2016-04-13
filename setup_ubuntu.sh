@@ -98,6 +98,14 @@ supervisorctl start gunicorn
 # Reread and restart nginx
 supervisorctl reread
 
+# Deploy steps
+git pull
+r.js -o frontend/js/build.js
+python3 manage.py collectstatic
+python3 manage.py compress
+python3 manage.py migrate
+supervisorctl restart gunicorn
+
 # Nginx setup in /etc/nginx/sites-available/protar
 upstream protar_app_server {
   server 127.0.0.1:8000 fail_timeout=0;
