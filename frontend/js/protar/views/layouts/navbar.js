@@ -19,12 +19,21 @@ define([
             navigate_home: '.navigate-home',
             navigate_explorer: '.navigate-explorer',
             search_toggle: '.navbar-toggle',
-            navbar_dropdown: '.navbar-collapse'
+            navbar_dropdown: '.navbar-collapse',
+            burger: '.navbar-btn-burger'
         },
 
-        triggers: {
-            'click @ui.navigate_home': 'navigate:home',
-            'click @ui.navigate_explorer': 'navigate:explorer'
+        events: {
+            'click @ui.navigate_home': 'navigateHome',
+            'click @ui.navigate_explorer': 'navigateExplorer',
+        },
+
+        navigateHome: function(){
+            Backbone.history.navigate('', {trigger: true});
+        },
+
+        navigateExplorer: function(){
+            Backbone.history.navigate('explorer', {trigger: true});
         },
 
         onRender: function(){

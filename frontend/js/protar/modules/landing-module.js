@@ -28,28 +28,13 @@ define([
                 App.rootView.getRegion('explorerRegion').$el.hide();
                 App.rootView.getRegion('appRegion').$el.hide();
                 App.rootView.getRegion('menuRegion').$el.hide();
+                App.rootView.getRegion('navbarRegion').currentView.ui.burger.addClass('navbar-hamburger-hide');
                 // Show app region
                 var landing_region = App.rootView.getRegion('landingRegion');
                 landing_region.$el.show();
                 // Render landing page
                 var layout = new LandingLayoutView();
                 landing_region.show(layout);
-
-                // Bind to navigation event for main explorer button
-                layout.on('navigate:explorer', function(){
-                    // Expand main region to container
-                    App.rootView.getRegion('mainRegion').$el.removeClass('container');
-                    App.rootView.getRegion('menuRegion').$el.show();
-                    // Hide app region
-                    App.rootView.getRegion('appRegion').$el.hide();
-                    App.rootView.getRegion('landingRegion').$el.hide();
-                    // Show explorer region
-                    var explorer_region = App.rootView.getRegion('explorerRegion');
-                    explorer_region.$el.show();
-                    // Render explorer if necessary
-                    var triger_rendering = !explorer_region.hasView();
-                    Backbone.history.navigate('explorer', {trigger: triger_rendering});
-                });
             }
         });
 

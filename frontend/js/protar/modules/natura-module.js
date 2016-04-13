@@ -56,13 +56,15 @@ define([
                 App.rootView.getRegion('landingRegion').$el.hide();
                 App.rootView.getRegion('menuRegion').$el.show();
                 App.rootView.getRegion('menuRegion').$el.removeClass('menu-explorer');
-                // Show app region
+                App.rootView.getRegion('navbarRegion').currentView.ui.burger.removeClass('navbar-hamburger-hide');
+                // Reset region to make sure no previous data is shown
                 var app_region = App.rootView.getRegion('appRegion');
-                app_region.$el.show();
+                app_region.empty();
                 // Render site or region view
+                app_region.$el.show();
                 var siteview = new NaturaItemView({model: this.model});
                 this.model.fetch().done(function(){
-                    app_region.show(siteview);
+                    App.rootView.getRegion('appRegion').show(siteview);
                 });
             }
         })

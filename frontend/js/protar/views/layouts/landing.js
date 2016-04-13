@@ -19,8 +19,12 @@ define([
             navigate_explorer: '.navigate-explorer'
         },
 
-        triggers: {
-            'click @ui.navigate_explorer': 'navigate:explorer'
+        events: {
+            'click @ui.navigate_explorer': 'navigateExplorer'
+        },
+
+        navigateExplorer: function(){
+            Backbone.history.navigate('explorer', {trigger: true});
         },
 
         onRender: function(){

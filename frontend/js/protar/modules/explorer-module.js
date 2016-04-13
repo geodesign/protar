@@ -29,6 +29,7 @@ define([
                 App.rootView.getRegion('mainRegion').$el.removeClass('container');
                 App.rootView.getRegion('menuRegion').$el.show();
                 App.rootView.getRegion('menuRegion').$el.addClass('menu-explorer');
+                App.rootView.getRegion('navbarRegion').currentView.ui.burger.removeClass('navbar-hamburger-hide');
                 // Hide app and landing region
                 App.rootView.getRegion('appRegion').$el.hide();
                 App.rootView.getRegion('landingRegion').$el.hide();

@@ -1,10 +1,10 @@
 <div class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a href="#" class="navbar-brand brand-img">
+            <a class="navbar-brand brand-img navigate-home">
                 <img alt="Protar" src="<%= STATIC_URL %>images/protar.png">
             </a>
-            <button aria-expanded="true" class="navbar-toggle" type="button" data-toggle="collapse" data-target="#menu-main">
+            <button aria-expanded="true" class="navbar-toggle navbar-btn-burger" type="button" data-toggle="collapse" data-target="#menu-main">
                 <span class="glyphicon glyphicon-menu-hamburger navbar-hamburger"></span>
             </button>
 
@@ -12,13 +12,13 @@
                 <span class="glyphicon glyphicon-search navbar-hamburger"></span>
             </button>
 
-            <button aria-expanded="true" class="navbar-toggle" type="button">
-                <a class="navbar-link navigate-explorer glyphicon glyphicon-globe"></a>
+            <button aria-expanded="true" class="navbar-toggle navigate-explorer" type="button">
+                <a class="navbar-link glyphicon glyphicon-globe"></a>
             </button>
         </div>
-            <button aria-expanded="true" class="navbar-globe navbar-toggle" type="button">
-                <a class="navbar-link navigate-explorer glyphicon glyphicon-globe"></a>
-            </button>
+        <button aria-expanded="true" class="navbar-globe navbar-toggle navigate-explorer" type="button">
+            <a class="navbar-link glyphicon glyphicon-globe"></a>
+        </button>
         <div class="navbar-collapse collapse" id="navbar-main">
             <form class="navbar-left navbar-form navbar-search-container" role="search"></form>
         </div>
