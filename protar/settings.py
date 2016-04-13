@@ -162,13 +162,14 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 5,
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-        'TIMEOUT': None,
-        'OPTIONS': {
-            'MAX_ENTRIES': 2000
+if not DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': '127.0.0.1:11211',
+            'TIMEOUT': None,
+            'OPTIONS': {
+                'MAX_ENTRIES': 2000
+            }
         }
     }
-}
