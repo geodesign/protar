@@ -297,15 +297,21 @@ define([
             this.barchart = new Chart(ctx, {
                 type: 'line',
                 data: data,
+
                 options: {
+                    maintainAspectRatio: false,
                     scales: {
                         yAxes: [
                             {
                                 stacked: true,
                                 ticks: {
                                     callback: function(value, index, values) {
-                                        // Scientific notation
-                                        return value.toExponential();
+                                        if(_.max(values) > 1e3){
+                                            // Scientific notation for large values
+                                            return value.toExponential();
+                                        } else {
+                                            return value;
+                                        }
                                     }
                                 }
                             }
