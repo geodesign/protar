@@ -280,9 +280,17 @@ define([
                 data: data,
                 options: {
                     scales: {
-                        yAxes: [{
-                                stacked: true
-                        }]
+                        yAxes: [
+                            {
+                                stacked: true,
+                                ticks: {
+                                    callback: function(value, index, values) {
+                                        // Scientific notation
+                                        return value.toExponential();
+                                    }
+                                }
+                            }
+                        ]
                     },
                     legend: {
                         display: false
