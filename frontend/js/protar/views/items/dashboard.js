@@ -433,7 +433,7 @@ define([
                 } else if(percentage){
                     _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">' + percentage + '% of Total</span>');
                 } else {
-                    _this.ui['sankey_title' + key].html(prefix + '< 0.1% of Total');
+                    _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">< 0.1% of Total</span>');
                 }
             });
         },
