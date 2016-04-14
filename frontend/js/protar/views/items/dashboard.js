@@ -25,6 +25,16 @@ define([
         LayersView,
         template
     ){
+    //Define color conversion helper function
+    var hexToRgb = function(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
     var ItemView = Marionette.ItemView.extend({
         template: _.template(template),
 
@@ -141,13 +151,17 @@ define([
                 // nodata and unclassified elements).
                 if(!nom) return;
 
+                // Get code and label at the menu level
                 cover.code = nom.attributes['code_' + App.menuView.current_level];
                 cover.label = nom.attributes['label_' + App.menuView.current_level];
-                cover.color = nom.attributes.color;
+                // Get color from menu
+                cover.color = App.menuView.colormap[nom.attributes.id];
+                // Generate a key to group the data by type and year
                 cover.code_group = cover.code + '_' + cover.year;
+                // Encode change flag as boolean
                 cover.change = false;
+                // Get detail code for sorting
                 cover.code_full = nom.attributes.code_3;
-                cover.grid_code = nom.attributes.grid_code;
 
                 if(cover.nomenclature_previous){
                     var nom = _this.nomenclatures.filter(function(nom){
@@ -187,6 +201,7 @@ define([
 
                 _this.aggregates.push(dat);
             });
+
         },
 
         createChart: function(year){
@@ -240,12 +255,20 @@ define([
 
             // Create chart dataset
             _.each(agg, function(val){
+                // Create zeros array for the available years
                 var set = _.map(_.range(data.labels.length), function(x){ return  0; });
+                // Replace values in zeros array to create a mini time series for
+                // each landcover type.
                 _.each(val, function(x){
                     var index = _.indexOf(data.labels, x.year);
                     set[index] = x.area
                 });
-                data.datasets.push({label: val[0].label, backgroundColor: val[0].color, data: set});
+                // Create rgba version of this color.
+                var color = val[0].color;
+                var col = hexToRgb(val[0].color);
+                color = 'rgba(' + col.r + ',' + col.g +','+ col.b+', 1)';
+                // Push mini time series to datasets
+                data.datasets.push({label: val[0].label, backgroundColor: color , data: set, fill: true});
             });
 
             // Get chart area
@@ -253,13 +276,10 @@ define([
 
             // Create chart
             this.barchart = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: data,
                 options: {
                     scales: {
-                        xAxes: [{
-                                stacked: true,
-                        }],
                         yAxes: [{
                                 stacked: true
                         }]
@@ -383,18 +403,62 @@ define([
             return {links: links, nodes: _.values(nodes)};
         },
 
+        computePercentages: function(){
+            var _this = this;
+            var change = this.aggregates.filter(function(agg){ return agg.change; });
+            change = _.groupBy(change, 'year');
+            this.total_change = {};
+            _.each(change, function(val, key){ return _this.total_change[key] = _.reduce(val, function(memo, x){ return memo + x.area }, 0); });
+
+            var clc = this.aggregates.filter(function(agg){ return !agg.change; });
+            clc = _.groupBy(clc, 'year');
+            this.total_area = {};
+            _.each(clc, function(val, key){ return _this.total_area[key] = _.reduce(val, function(memo, x){ return memo + x.area }, 0); });
+
+            this.percentages = {};
+            _.each(this.total_area, function(val, key){
+                // No changes for 1990
+                if(key == '1990') return;
+                // Get change for this year
+                var change = _this.total_change[key];
+                // Compute a rounded percentage value
+                var percentage =  Math.round(1000 * change / val) / 10;
+                // Previous year lookup
+                var prev = {2000: 1990, 2006: 2000, 2012: 2006};
+                // Header prefix
+                var prefix = 'Changes for ' + prev[key] + '-' + key + ' ';
+                // Write percentage to header
+                if(!change){
+                    _this.ui['sankey_title' + key].html('No ' +  prefix);
+                } else if(percentage){
+                    _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">' + percentage + '% of Total</span>');
+                } else {
+                    _this.ui['sankey_title' + key].html(prefix + '< 0.1% of Total');
+                }
+            });
+        },
+
         createSankey: function(year){
             var data = this.createLinksNodesChange(year);
+
+            // Update section headings
+            this.computePercentages();
+
             // Hide element if no data is there
             if(data.links.length == 0){
-                this.ui['sankey_title' + year].html('No Changes in ' + year);
-                this.ui['sankey' + year].remove();
+                this.ui['sankey' + year].hide();
                 return;
+            } else {
+                this.ui['sankey' + year].show();
             }
 
             var margin = 10;
             var width = $(".sankey-" + year.toString()).width() - margin - margin;
-            var height = 300 - margin - margin;
+
+            // Compute height as function of number of links
+            var height = data.links.length * 50;
+            height = height - margin - margin;
+            height = height > 500 ? 500 : height;
 
             var formatNumber = d3.format(",.0f");
             var format = function(d) {
