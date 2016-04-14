@@ -39,12 +39,12 @@ define([
         template: _.template(template),
 
         initialize: function(){
-            _.bindAll(this, 'createCharts');
+            _.bindAll(this, 'createAll', 'createCharts', 'createSankeys');
             this.tile_layers = {};
             // Listen to menu events to update interface
-            this.listenTo(App.menuView, 'changed:level', this.createCharts);
-            this.listenTo(App.menuView, 'changed:legend', this.createCharts);
-            this.listenTo(App.menuView, 'changed:resize', this.createCharts);
+            this.listenTo(App.menuView, 'changed:level', this.createAll);
+            this.listenTo(App.menuView, 'changed:legend', this.createAll);
+            this.listenTo(App.menuView, 'changed:resize', this.createSankeys);
         },
 
         onShow: function(){
@@ -58,7 +58,7 @@ define([
             this.nomenclatures = new Nomenclatures();
             this.nomenclatures.fetch().done(function(){
                 _this.noms_done = true;
-                _this.createCharts();
+                _this.createAll();
             });
 
             // Get site geometry
@@ -66,7 +66,7 @@ define([
             this.model.attributes.geom.fetch().done(function(geom_result){
                 _this.geom_result = geom_result;
                 _this.geom_done = true;
-                _this.createCharts();
+                _this.createAll();
             });
 
             // Get corine landcover layers
@@ -74,7 +74,7 @@ define([
             this.layers = new Layers();
             this.layers.fetch().done(function(){
                 _this.layers_done = true;
-                _this.createCharts();
+                _this.createAll();
             });
         },
 
@@ -106,32 +106,47 @@ define([
             'click @ui.graph_switch': 'toggleGraphs'
         },
 
-        createCharts: function(){
+        createAll: function(initial){
+            if(!this.noms_done || !this.layers_done || !this.geom_done) return;
             var _this = this;
-            if(!this.noms_done || !this.geom_done || !this.layers_done) return;
 
             // Combine nomenclature data to covers and compute aggregates
             this.bindData();
 
+            // Create all elements
+            this.createCharts()
+            this.createSankeys();
+            this.createMaps();
+        },
+
+        createCharts: function(){
+            var _this = this;
             // Remove existing charts
             _.each(this.charts, function(chart){ chart.destroy(); });
-            _.each(this.sankeys, function(svg){ svg.remove(); $('.sankey').html(''); });
 
             if(this.barchart) this.barchart.destroy();
 
             // Reset chart arrays
             this.charts = [];
-            this.sankeys = [];
 
             // Create new charts
             _.each([1990, 2000, 2006, 2012], function(year){
                 _this.createChart(year);
-                if(year != 1990) {
-                    _this.createSankey(year);
-                }
             });
+
             this.createStackedChart();
-            this.createMaps();
+        },
+
+        createSankeys: function(){
+            // Destroy existing sankeys
+            _.each(this.sankeys, function(svg){ svg.remove(); $('.sankey').html(''); });
+            // Reset sankey list
+            this.sankeys = [];
+            // Create sankeys
+            var _this = this;
+            _.each([2000, 2006, 2012], function(year){
+                _this.createSankey(year);
+            });
         },
 
         bindData: function(){
@@ -202,6 +217,10 @@ define([
                 _this.aggregates.push(dat);
             });
 
+            // Filter aggregates by current selection
+            if(App.menuView.currentYear){
+                //this.aggregates = _.filter(this.aggregates, function(x){ return x.year == 2006; });
+            }
         },
 
         createChart: function(year){
@@ -363,6 +382,8 @@ define([
                 if(layer.attributes.change) return;
                 // Get map for this layer
                 var LMap = _this.maps[layer.attributes.year];
+                // Return if map for this year does not exist
+                if(!LMap) return;
                 // Clear layers if exists
                 if(_this.tile_layers[layer.attributes.year]) {
                     LMap.removeLayer(_this.tile_layers[layer.attributes.year]);
