@@ -62,4 +62,4 @@ class RegionGeoSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Region
         geo_field = 'geom'
-        fields = ('id', 'name', )
+        fields = ('id', 'name', 'area', )

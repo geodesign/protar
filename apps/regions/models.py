@@ -39,3 +39,8 @@ class Region(models.Model):
         if 'No NUTS' in rawname:
             return self.country.name
         return rawname[self.level + 3:].title()
+
+    @property
+    def area(self):
+        self.geom.transform(3035)
+        return self.geom.area / 1e6
