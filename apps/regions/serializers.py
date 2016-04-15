@@ -23,9 +23,11 @@ class RegionSerializer(serializers.ModelSerializer):
         )
 
     def get_covers(self, obj):
-        covers = Cover.objects.filter(site__in=obj.sites.values_list('id', flat=True))
+        covers = Cover.objects.filter(site__country=obj.country)
+        covers = covers.filter(site__in=obj.sites.values_list('id', flat=True))
         covers = covers.values('year', 'nomenclature', 'change', 'nomenclature_previous')
-        covers = covers.annotate(area=Sum('area'))
+        # Compute aggregate area in km2
+        covers = covers.annotate(area=Sum('area') / 1e6)
         return covers
 
     def get_name0(self, obj):
