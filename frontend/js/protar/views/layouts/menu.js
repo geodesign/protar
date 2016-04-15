@@ -111,6 +111,8 @@ define([
             this.colormap = {};
             var level_noms = this.nomenclatures.groupBy('code_' + _this.current_level);
             _.each(level_noms, function(group, code){
+                // Ignore water, unclassified and nodata
+                if(_.indexOf(['5', '9'], code.substr(0, 1)) >= 0) return;
                 // Ignore excluded elements
                 if(_.indexOf(_this.exclude, code) >= 0) return;
                 // Get color from first group member (assumes preordering)

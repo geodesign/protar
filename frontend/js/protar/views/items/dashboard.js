@@ -99,7 +99,8 @@ define([
 
             doughnuts: '.doughnuts',
             bars: '.bars',
-            graph_switch: '.graph-toggle'
+            graph_switch: '.graph-toggle',
+            base_info: '.base-info'
         },
 
         events: {
@@ -161,10 +162,10 @@ define([
                     return nom.id == cover.nomenclature;
                 })[0];
 
-                // Skip this cover if its from a nomenclature that is not
+                // Skip this cover is water, unclassified, or nodata
                 // in the api (currently the api does not provide the
                 // nodata and unclassified elements).
-                if(!nom) return;
+                if(nom.get('code_1') == 5 || nom.get('code_1') == 9) return;
 
                 // Get code and label at the menu level
                 cover.code = nom.attributes['code_' + App.menuView.current_level];
@@ -306,11 +307,14 @@ define([
                                 stacked: true,
                                 ticks: {
                                     callback: function(value, index, values) {
-                                        if(_.max(values) > 1e3){
+                                        var maxval = _.max(values);
+                                        if(maxval > 1e5){
                                             // Scientific notation for large values
                                             return value.toExponential();
+                                        } else if (maxval < 1) {
+                                            return d3.format(",.4f")(value);
                                         } else {
-                                            return value;
+                                            return d3.format(",.1f")(value);
                                         }
                                     }
                                 }
@@ -471,6 +475,14 @@ define([
                     _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">< 0.1% of Total</span>');
                 }
             });
+            // For countries, add global percentage value
+            if(!this.model.attributes.sitename & this.model.attributes.level == 0){
+                var area_2012 = this.aggregates.filter(function(agg){ return !agg.change &  agg.year == 2012 ; });
+                area_2012 = _.reduce(area_2012, function(memo, x){ return memo + x.area }, 0);
+                var region_area = this.model.attributes.geom.attributes.properties.area;
+                var current_percentage = Math.round(100 * area_2012 / region_area);
+                this.ui.base_info.html(current_percentage + '% are protected.');
+            }
         },
 
         createSankey: function(year){
@@ -495,9 +507,9 @@ define([
             height = height - margin - margin;
             height = height > 500 ? 500 : height;
 
-            var formatNumber = d3.format(",.0f");
+            var formatNumber = d3.format(",.2f");
             var format = function(d) {
-                return formatNumber(d) + " sqm";
+                return formatNumber(d) + " km2";
             }
             color = d3.scale.category20();
 

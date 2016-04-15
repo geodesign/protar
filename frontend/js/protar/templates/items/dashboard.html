@@ -12,6 +12,7 @@
                 <% if(level > 1 & name1) { %>- <%= name1 %><% } %>
                 <% if(level > 2 & name2) { %>- <%= name2 %><% } %>
             </p>
+            <p class="base-info"></p>
         <% } else { %>
             <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
             <p><%= sitetype %>, <%= country %></p>
@@ -145,14 +146,14 @@
         </div>
     </div>
 <% } else { %>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">List of Natura 2000 Sites for this region</div>
-                <div class="panel-body">
-                    Placeholder - paginated list of sites.
-                </div>
-            </div>
-        </div>
-    </div>
+    <!--<div class="row">-->
+        <!--<div class="col-md-12">-->
+            <!--<div class="panel panel-default">-->
+                <!--<div class="panel-heading">List of Natura 2000 Sites for this region</div>-->
+                <!--<div class="panel-body">-->
+                    <!--Placeholder - paginated list of sites.-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
 <% } %>
