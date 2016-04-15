@@ -30,7 +30,7 @@ define([
 
         ui: {
             map: '.map',
-            chart: '.chart',
+            chart_parent: '.chart-parent',
             sankey: '.sankey',
             sankey_panel: '.sankey-panel',
             percentage: '.percentage'
@@ -55,19 +55,26 @@ define([
 
         createText: function(){
             var percentage =  Math.round(1000 * this.model.get('change_ratio')) / 10;
+            var previous = this.model.get('previous_year')  ? this.model.get('previous_year') : 1990;
+
+            var prefix = 'Change ' + previous + '-' + this.model.get('year') + ': ';
             if(!this.model.get('change_ratio')){
                 this.ui.percentage.html('No change');
             } else if(percentage){
-                this.ui.percentage.html('Change: ' + percentage + '%');
+                this.ui.percentage.html(prefix + percentage + '%');
             } else {
-                this.ui.percentage.html('Change: <0.1%');
+                this.ui.percentage.html(prefix + '<0.1%');
             }
         },
 
         createChart: function(){
             var _this = this;
             // Remove existing chart
-            if(this.chart) this.chart.destroy();
+            if(this.chart){
+                this.chart.destroy();
+                this.ui.chart_parent.empty();
+                this.ui.chart_parent.html('<canvas class="chart"></canvas>');
+            }
             // Get data
             var data = this.model.get('aggregates').filter(function(x){return !x.change; });
             // Transform data to doughnut format
@@ -82,7 +89,7 @@ define([
                 ]
             }
             // Get chart area
-            var ctx = this.ui.chart.get(0).getContext('2d');
+            var ctx = this.ui.chart_parent.find('canvas')[0].getContext('2d');
             // Create chart
             this.chart = new Chart(ctx, {
                 type: 'doughnut',

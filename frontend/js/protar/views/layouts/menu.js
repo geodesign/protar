@@ -147,9 +147,16 @@ define([
                 this.LMap.setView(L.latLng(geom.coordinates[1], geom.coordinates[0]));
                 this.LMap.removeLayer(this.marker);
             }
+
+            // Manuall override the marker url
+            var icon = L.icon({
+                iconUrl: STATIC_URL + 'components/leaflet/dist/images/marker-icon.png',
+                shadowUrl: STATIC_URL + 'components/leaflet/dist/images/marker-shadow.png'
+            });
+
             this.marker = L.marker(
                 [geom.coordinates[1], geom.coordinates[0]],
-                {clickable: false}
+                {clickable: false, icon: icon}
             ).addTo(this.LMap);
         }
     });

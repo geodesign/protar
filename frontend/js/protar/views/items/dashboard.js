@@ -261,7 +261,7 @@ define([
                 area_2012 = _.reduce(area_2012, function(memo, x){ return memo + x.area }, 0);
                 var region_area = this.model.attributes.geom.attributes.properties.area;
                 var current_percentage = Math.round(100 * area_2012 / region_area);
-                this.ui.base_info.html(current_percentage + '% are protected.');
+                this.ui.base_info.html('Currently Protected :' + current_percentage + '%');
             }
         },
 
