@@ -174,8 +174,6 @@ define([
                 cover.color = App.menuView.colormap[nom.attributes.id];
                 // Generate a key to group the data by type and year
                 cover.code_group = cover.code + '_' + cover.year;
-                // Encode change flag as boolean
-                cover.change = false;
                 // Get detail code for sorting
                 cover.code_full = nom.attributes.code_3;
 
@@ -187,7 +185,6 @@ define([
                     cover.label_previous = nom.attributes['label_' + App.menuView.current_level];
                     cover.color_previous = nom.attributes.color;
                     cover.code_group += '_' + cover.code_previous;
-                    cover.change = true;
                 };
             });
 
