@@ -32,8 +32,14 @@ define([
             map: '.map',
             chart: '.chart',
             sankey: '.sankey',
-            sankey_title: '.sankey-title',
-            sankey_panel: '.sankey-panel'
+            sankey_panel: '.sankey-panel',
+            percentage: '.percentage'
+        },
+
+        initialize: function(){
+            // Make sure sankeys are responsive
+            _.bindAll(this, 'createSankey');
+            this.listenTo(App.menuView, 'changed:resize', this.createSankey);
         },
 
         onShow: function(){
@@ -44,6 +50,18 @@ define([
             this.createChart();
             this.createMap();
             this.createSankey();
+            this.createText();
+        },
+
+        createText: function(){
+            var percentage =  Math.round(1000 * this.model.get('change_ratio')) / 10;
+            if(!this.model.get('change_ratio')){
+                this.ui.percentage.html('No change');
+            } else if(percentage){
+                this.ui.percentage.html('Change: ' + percentage + '%');
+            } else {
+                this.ui.percentage.html('Change: <0.1%');
+            }
         },
 
         createChart: function(){
@@ -70,10 +88,11 @@ define([
                 type: 'doughnut',
                 data: chart_data,
                 options: {
+                    maintainAspectRatio: false,
                     legend: {
                         display: false
                     },
-                    cutoutPercentage: 75
+                    cutoutPercentage: 70
                 }
             });
         },
@@ -106,7 +125,6 @@ define([
 
                 // Add zoom control to last map on the list
                 this.LMap.addControl(L.control.zoom({position: 'bottomright'}));
-
 
                 L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'

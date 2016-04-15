@@ -81,7 +81,6 @@ define([
             this.listenTo(App.menuView, 'changed:level', this.createAll);
             this.listenTo(App.menuView, 'changed:legend', this.createAll);
             this.listenTo(App.menuView, 'changed:year', this.createAll);
-            this.listenTo(App.menuView, 'changed:resize', this.createSankeys);
             
             this.year_model = new Backbone.Model({});
         },
@@ -116,8 +115,11 @@ define([
             });
 
             // Create Context map on menu
-            if(this.model.attributes.sitename || this.model.attributes.level < 1){
+            if(this.model.attributes.sitename || this.model.attributes.level > 1){
+                App.menuView.ui.context.show();
                 App.menuView.createContextMap(this.model.attributes.centroid);
+            } else {
+                App.menuView.ui.context.hide();
             }
         },
 
@@ -137,11 +139,12 @@ define([
                 this.ui.panel_all.hide();
                 // Set data for year view and render
                 this.year_model.set({
+                    year: this.current_year,
+                    previous_year: this.model.attributes.years[_.indexOf(this.model.attributes.years, this.current_year) - 1],
                     aggregates: this.aggregates.filter(function(agg){ return agg.year == _this.current_year; }),
                     geom: this.geom_result,
                     rasterlayer: this.layers.filter(function(lyr){ return lyr.get('year') == _this.current_year && !lyr.change; })[0].get('rasterlayer'),
-                    year: this.current_year,
-                    previous_year: this.model.attributes.years[_.indexOf(this.model.attributes.years, this.current_year) - 1]
+                    change_ratio: this.change_ratio
                 });
 
                 if(!this.year_view){
@@ -240,23 +243,11 @@ define([
             this.percentages = {};
             _.each(total_area, function(val, key){
                 // No changes for 1990
-                if(key == '1990') return;
+                if(key != _this.current_year) return;
                 // Get change for this year
                 var change = total_change[key];
-                // Compute a rounded percentage value
-                var percentage =  Math.round(1000 * change / val) / 10;
-                // Previous year lookup
-                var prev = {2000: 1990, 2006: 2000, 2012: 2006};
-                // Header prefix
-                var prefix = 'Changes for ' + prev[key] + '-' + key + ' ';
-                // Write percentage to header
-                if(!change){
-                    _this.ui['sankey_title' + key].html('No ' +  prefix);
-                } else if(percentage){
-                    _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">' + percentage + '% of Total</span>');
-                } else {
-                    _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">< 0.1% of Total</span>');
-                }
+                // Store change ration for the current year
+                _this.change_ratio = change / val;
             });
             // Check for 1990 values, if very small, they are artefacts, so they should be removed
             if(total_area[1990] & total_area[1990] / total_area[2000] < 0.005){

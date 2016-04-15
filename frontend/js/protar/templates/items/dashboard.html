@@ -16,8 +16,8 @@
         <% } else { %>
             <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
             <p>
-                <%= sitetype %> site. Was added on <%= natura2000.date_compilation.substr(0, 10) %>,
-                has an area of <%= Math.round(natura2000.areaha / 100) %> km2, and is located in <%= country %>.
+                A <%= sitetype %> site. It was added in <%= natura2000.date_compilation.substr(0, 4) %>,
+                covers an area of <%= Math.round(natura2000.areaha / 100) %> km2, and is located in <%= country %>.
             </p>
         <% } %>
         <hr>
@@ -28,7 +28,7 @@
 <div class="row row-year row-all">
     <div class="col-md-12">
         <div class="panel panel-default">
-            <div class="panel-heading">Protected Area in km2</div>
+            <div class="panel-heading">Areas by Year in km2</div>
             <div class="panel-body">
                 <div class="bars">
                     <canvas id="barchart"></canvas>

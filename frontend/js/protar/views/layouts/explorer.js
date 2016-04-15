@@ -214,9 +214,12 @@ define([
             var model = this.lyrs.filter(function(layer){
                 return layer.attributes.year == App.menuView.current_year;
             })[0];
-            var colormap_uri = encodeURIComponent(JSON.stringify(App.menuView.colormap));
-            this.corine_layer = L.tileLayer('/raster/tiles/' + model.attributes.rasterlayer +'/{z}/{x}/{y}.png?colormap=' + colormap_uri);
-            this.LMap.addLayer(this.corine_layer);
+            // Show layer if year is selected
+            if(model){
+                var colormap_uri = encodeURIComponent(JSON.stringify(App.menuView.colormap));
+                this.corine_layer = L.tileLayer('/raster/tiles/' + model.attributes.rasterlayer +'/{z}/{x}/{y}.png?colormap=' + colormap_uri);
+                this.LMap.addLayer(this.corine_layer);
+            }
         },
 
         updateGeometries: function(){
