@@ -15,90 +15,107 @@
             <p class="base-info"></p>
         <% } else { %>
             <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
-            <p><%= sitetype %>, <%= country %></p>
-            <p>Date added: <%= natura2000.date_compilation.substr(0, 10) %>, Area: <%= Math.round(natura2000.areaha / 100) %> km2.</p>
+            <p>
+                <%= sitetype %> site. Was added on <%= natura2000.date_compilation.substr(0, 10) %>,
+                has an area of <%= Math.round(natura2000.areaha / 100) %> km2, and is located in <%= country %>.
+            </p>
         <% } %>
+        <hr>
     </div>
 </div>
 <% if(covers.length) { %>
-<div class="row">
+
+<div class="row row-year row-2012">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading sankey-title-2012">Changes 2006-2012</div>
+            <div class="panel-body">
+                <canvas id="chart-2012"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="map-2012" class="map"></div>
+            </div>
+        </div>
+    </div>
     <div class="col-md-12">
         <div class="panel panel-default">
-            <div class="panel-heading">Protected Area in km2<div class="graph-toggle pull-right"><span class="glyphicon glyphicon-dashboard"></span></div></div>
+            <div class="sankey sankey-2012"></div>
+        </div>
+    </div>
+</div>
+<div class="row row-year row-2006">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading sankey-title-2006">Changes 2000-2006</div>
             <div class="panel-body">
-                <div class="doughnuts">
-                    <div class="col-sm-3">
-                        <h4>1990</h4>
-                        <canvas id="chart-1990"></canvas>
-                    </div>
-                    <div class="col-sm-3">
-                        <h4>2000</h4>
-                        <canvas id="chart-2000"></canvas>
-                    </div>
-                    <div class="col-sm-3">
-                        <h4>2006</h4>
-                        <canvas id="chart-2006"></canvas>
-                    </div>
-                    <div class="col-sm-3">
-                        <h4>2012</h4>
-                        <canvas id="chart-2012"></canvas>
-                    </div>
-                </div>
+                <canvas id="chart-2006"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="map-2006" class="map"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="sankey sankey-2006"></div>
+        </div>
+    </div>
+</div>
+<div class="row row-year row-2000">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading sankey-title-2000">Changes 1990-2000</div>
+            <div class="panel-body">
+                <canvas id="chart-2000"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="map-2000" class="map"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="sankey sankey-2000"></div>
+        </div>
+    </div>
+</div>
+<div class="row row-year row-1990">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <canvas id="chart-1990"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="map-1990" class="map"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-year row-all">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">Protected Area in km2</div>
+            <div class="panel-body">
                 <div class="bars">
                     <canvas id="barchart"></canvas>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">Maps</div>
-            <div class="panel-body">
-                <div class="col-sm-3">
-                    <h4>1990</h4>
-                    <div id="map-1990" class="map"></div>
-                </div>
-                <div class="col-sm-3">
-                    <h4>2000</h4>
-                    <div id="map-2000" class="map"></div>
-                </div>
-                <div class="col-sm-3">
-                    <h4>2006</h4>
-                    <div id="map-2006" class="map"></div>
-                </div>
-                <div class="col-sm-3">
-                    <h4>2012</h4>
-                    <div id="map-2012" class="map"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading sankey-title-2012">Changes 2006-2012</div>
-            <div class="panel-body sankey sankey-2012">
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading sankey-title-2006">Changes 2000-2006</div>
-            <div class="panel-body sankey sankey-2006">
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading sankey-title-2000">Changes 1990-2000</div>
-            <div class="panel-body sankey sankey-2000">
             </div>
         </div>
     </div>

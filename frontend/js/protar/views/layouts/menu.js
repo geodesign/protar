@@ -70,10 +70,8 @@ define([
 
         change_year: function(e){
             var el = $(e.target);
-            // Ignore event if level is already active
-            if(el.hasClass('active')) return;
-            // Make new button active or deactivate target
-            el.addClass('active').siblings().removeClass('active');
+            // Toggle this button and deactivate others
+            el.toggleClass('active').siblings().removeClass('active');
             // Update current year
             this.current_year = el.hasClass('active') ? el.data('year') : null;
             // Trigger level change event

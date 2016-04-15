@@ -35,15 +35,49 @@ define([
         } : null;
     }
 
-    var ItemView = Marionette.ItemView.extend({
+    var ItemView = Marionette.LayoutView.extend({
         template: _.template(template),
+
+        regions: {
+            year: '.year-region'
+        },
+
+        ui: {
+            panel1990: '.row-1990',
+            panel2000: '.row-2000',
+            panel2006: '.row-2006',
+            panel2012: '.row-2012',
+            panel_all: '.row-all',
+
+            map1990: '#map-1990',
+            map2000: '#map-2000',
+            map2006: '#map-2006',
+            map2012: '#map-2012',
+
+            chart1990: '#chart-1990',
+            chart2000: '#chart-2000',
+            chart2006: '#chart-2006',
+            chart2012: '#chart-2012',
+
+            sankey2000: '.sankey-2000',
+            sankey2006: '.sankey-2006',
+            sankey2012: '.sankey-2012',
+
+            sankey_title2000: '.sankey-title-2000',
+            sankey_title2006: '.sankey-title-2006',
+            sankey_title2012: '.sankey-title-2012',
+
+            base_info: '.base-info'
+        },
 
         initialize: function(){
             _.bindAll(this, 'createAll', 'createCharts', 'createSankeys');
             this.tile_layers = {};
+            this.current_year = 2012;
             // Listen to menu events to update interface
             this.listenTo(App.menuView, 'changed:level', this.createAll);
             this.listenTo(App.menuView, 'changed:legend', this.createAll);
+            this.listenTo(App.menuView, 'changed:year', this.createAll);
             this.listenTo(App.menuView, 'changed:resize', this.createSankeys);
         },
 
@@ -82,38 +116,19 @@ define([
             }
         },
 
-        ui: {
-            map1990: '#map-1990',
-            map2000: '#map-2000',
-            map2006: '#map-2006',
-            map2012: '#map-2012',
-
-            chart1990: '#chart-1990',
-            chart2000: '#chart-2000',
-            chart2006: '#chart-2006',
-            chart2012: '#chart-2012',
-
-            sankey2000: '.sankey-2000',
-            sankey2006: '.sankey-2006',
-            sankey2012: '.sankey-2012',
-
-            sankey_title2000: '.sankey-title-2000',
-            sankey_title2006: '.sankey-title-2006',
-            sankey_title2012: '.sankey-title-2012',
-
-            doughnuts: '.doughnuts',
-            bars: '.bars',
-            graph_switch: '.graph-toggle',
-            base_info: '.base-info'
-        },
-
-        events: {
-            'click @ui.graph_switch': 'toggleGraphs'
-        },
-
         createAll: function(initial){
             if(!this.noms_done || !this.layers_done || !this.geom_done) return;
             var _this = this;
+
+            // Toggle interface
+            if(this.current_year != App.menuView.current_year){
+                this.current_year = App.menuView.current_year;
+                if(this.current_year){
+                    this.ui['panel' + this.current_year].removeClass('mr-z').siblings('.row-year').addClass('mr-z');
+                } else {
+                    this.ui.panel_all.removeClass('mr-z').siblings('.row-year').addClass('mr-z');
+                }
+            }
 
             // Combine nomenclature data to covers and compute aggregates
             this.bindData();
@@ -219,11 +234,6 @@ define([
 
                 _this.aggregates.push(dat);
             });
-
-            // Filter aggregates by current selection
-            if(App.menuView.currentYear){
-                //this.aggregates = _.filter(this.aggregates, function(x){ return x.year == 2006; });
-            }
         },
 
         computePercentages: function(){
@@ -380,11 +390,6 @@ define([
             });
         },
 
-        toggleGraphs: function(){
-            this.ui.doughnuts.toggle();
-            this.ui.bars.toggle();
-        },
-
         createMaps: function(){
             var _this = this;
             // Instantiate maps if not done already
@@ -414,13 +419,14 @@ define([
                     LMap.addLayer(site);
 
                     // Add zoom control to last map on the list
-                    if(year == 2012) LMap.addControl(L.control.zoom({position: 'bottomright'}));
+                    //if(year == 2012) LMap.addControl(L.control.zoom({position: 'bottomright'}));
+                    LMap.addControl(L.control.zoom({position: 'bottomright'}));
 
                     // Sync maps
-                    _.each(_this.maps, function(map, key){
-                        map.sync(LMap);
-                        LMap.sync(map);
-                    });
+                    //_.each(_this.maps, function(map, key){
+                        //map.sync(LMap);
+                        //LMap.sync(map);
+                    //});
 
                     L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
                         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
@@ -512,6 +518,7 @@ define([
             var height = data.links.length * 50;
             height = height - margin - margin;
             height = height > 500 ? 500 : height;
+            height = height < 80 ? 80 : height;
 
             var formatNumber = d3.format(",.2f");
             var format = function(d) {
