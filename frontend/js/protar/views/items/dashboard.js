@@ -49,7 +49,6 @@ define([
 
         onShow: function(){
             var _this = this;
-
             // Dont render if there is no data
             if(this.model.attributes.covers == 0) return;
 
@@ -76,6 +75,11 @@ define([
                 _this.layers_done = true;
                 _this.createAll();
             });
+
+            // Create Context map on menu
+            if(!this.model.attributes.sitename && this.model.attributes.level > 1){
+                App.menuView.createContextMap(this.model.attributes.centroid);
+            }
         },
 
         ui: {

@@ -16,6 +16,7 @@
         <% } else { %>
             <h2><%= sitename %> <span class="small"><%= sitecode %></span></h2>
             <p><%= sitetype %>, <%= country %></p>
+            <p>Date added: <%= natura2000.date_compilation.substr(0, 10) %>, Area: <%= Math.round(natura2000.areaha / 100) %> km2.</p>
         <% } %>
     </div>
 </div>

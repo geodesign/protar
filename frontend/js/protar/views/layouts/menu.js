@@ -1,11 +1,13 @@
 define([
         'marionette',
+        'leaflet',
         'collections/nomenclatures',
         'views/collections/legends',
         'text!templates/layouts/menu.html'
     ],
     function(
         Marionette,
+        L,
         Nomenclatures,
         LegendView,
         template
@@ -41,7 +43,8 @@ define([
 
         ui: {
             levels: '.levels',
-            years: '.years'
+            years: '.years',
+            context: '.context-map'
         },
 
         events: {
@@ -122,6 +125,34 @@ define([
                     _this.colormap[nom.attributes.grid_code] = color;
                 });
             });
+        },
+
+        createContextMap: function(geom){
+            if(!this.LMap){
+                this.LMap = L.map(this.ui.context[0], {
+                    center: L.latLng(geom.coordinates[1], geom.coordinates[0]),
+                    zoom: 3,
+                    scrollWheelZoom: false,
+                    attributionControl: false,
+                    zoomControl: false,
+                    dragging: false,
+                    touchZoom: false,
+                    doubleClickZoom:false,
+                    boxZoom: false,
+                    tap: false
+                });
+
+                L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+                }).addTo(this.LMap);
+            } else {
+                this.LMap.removeLayer(this.marker);
+            }
+            this.marker = L.marker(
+                [geom.coordinates[1], geom.coordinates[0]],
+                {clickable: false}
+            ).addTo(this.LMap);
+            this.LMap.setView(L.latLng(geom.coordinates[1], geom.coordinates[0]));
         }
     });
     return View;
