@@ -151,7 +151,7 @@ define([
             // Manuall override the marker url
             var icon = L.icon({
                 iconUrl: STATIC_URL + 'components/leaflet/dist/images/marker-icon.png',
-                shadowUrl: STATIC_URL + 'components/leaflet/dist/images/marker-shadow.png'
+                shadowUrl: STATIC_URL + 'components/leaflet/dist/images/marker-shadow.png',
                 iconSize: [25, 41],
                 iconAnchor: [12, 41],
                 popupAnchor: [1, -34],
