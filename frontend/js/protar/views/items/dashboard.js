@@ -77,7 +77,7 @@ define([
             });
 
             // Create Context map on menu
-            if(!this.model.attributes.sitename && this.model.attributes.level > 1){
+            if(this.model.attributes.sitename || this.model.attributes.level < 1){
                 App.menuView.createContextMap(this.model.attributes.centroid);
             }
         },

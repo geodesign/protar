@@ -146,13 +146,13 @@ define([
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
                 }).addTo(this.LMap);
             } else {
+                this.LMap.setView(L.latLng(geom.coordinates[1], geom.coordinates[0]));
                 this.LMap.removeLayer(this.marker);
             }
             this.marker = L.marker(
                 [geom.coordinates[1], geom.coordinates[0]],
                 {clickable: false}
             ).addTo(this.LMap);
-            this.LMap.setView(L.latLng(geom.coordinates[1], geom.coordinates[0]));
         }
     });
     return View;
