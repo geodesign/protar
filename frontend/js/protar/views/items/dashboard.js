@@ -113,6 +113,7 @@ define([
 
             // Combine nomenclature data to covers and compute aggregates
             this.bindData();
+            this.computePercentages();
 
             // Create all elements
             this.createCharts()
@@ -218,6 +219,56 @@ define([
             // Filter aggregates by current selection
             if(App.menuView.currentYear){
                 //this.aggregates = _.filter(this.aggregates, function(x){ return x.year == 2006; });
+            }
+        },
+
+        computePercentages: function(){
+            var _this = this;
+
+            var clc = this.aggregates.filter(function(agg){ return !agg.change; });
+            clc = _.groupBy(clc, 'year');
+            var total_area = {};
+            _.each(clc, function(val, key){ return total_area[key] = _.reduce(val, function(memo, x){ return memo + x.area }, 0); });
+
+            var change = this.aggregates.filter(function(agg){ return agg.change; });
+            change = _.groupBy(change, 'year');
+            var total_change = {};
+            _.each(change, function(val, key){ return total_change[key] = _.reduce(val, function(memo, x){ return memo + x.area }, 0); });
+
+            this.percentages = {};
+            _.each(total_area, function(val, key){
+                // No changes for 1990
+                if(key == '1990') return;
+                // Get change for this year
+                var change = total_change[key];
+                // Compute a rounded percentage value
+                var percentage =  Math.round(1000 * change / val) / 10;
+                // Previous year lookup
+                var prev = {2000: 1990, 2006: 2000, 2012: 2006};
+                // Header prefix
+                var prefix = 'Changes for ' + prev[key] + '-' + key + ' ';
+                // Write percentage to header
+                if(!change){
+                    _this.ui['sankey_title' + key].html('No ' +  prefix);
+                } else if(percentage){
+                    _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">' + percentage + '% of Total</span>');
+                } else {
+                    _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">< 0.1% of Total</span>');
+                }
+            });
+            // Check for 1990 values, if very small, they are artefacts, so they should be removed
+            if(total_area[1990] & total_area[1990] / total_area[2000] < 0.005){
+                delete total_area[1990];
+                this.aggregates = this.aggregates.filter(function(agg){ return agg.year != 1990; });
+                this.model.attributes.years = this.model.attributes.years.filter(function(year){ return year != 1990 });
+            }
+            // For countries, add global percentage value
+            if(!this.model.attributes.sitename & this.model.attributes.level == 0){
+                var area_2012 = this.aggregates.filter(function(agg){ return !agg.change &  agg.year == 2012 ; });
+                area_2012 = _.reduce(area_2012, function(memo, x){ return memo + x.area }, 0);
+                var region_area = this.model.attributes.geom.attributes.properties.area;
+                var current_percentage = Math.round(100 * area_2012 / region_area);
+                this.ui.base_info.html(current_percentage + '% are protected.');
             }
         },
 
@@ -439,54 +490,8 @@ define([
             return {links: links, nodes: _.values(nodes)};
         },
 
-        computePercentages: function(){
-            var _this = this;
-            var change = this.aggregates.filter(function(agg){ return agg.change; });
-            change = _.groupBy(change, 'year');
-            this.total_change = {};
-            _.each(change, function(val, key){ return _this.total_change[key] = _.reduce(val, function(memo, x){ return memo + x.area }, 0); });
-
-            var clc = this.aggregates.filter(function(agg){ return !agg.change; });
-            clc = _.groupBy(clc, 'year');
-            this.total_area = {};
-            _.each(clc, function(val, key){ return _this.total_area[key] = _.reduce(val, function(memo, x){ return memo + x.area }, 0); });
-
-            this.percentages = {};
-            _.each(this.total_area, function(val, key){
-                // No changes for 1990
-                if(key == '1990') return;
-                // Get change for this year
-                var change = _this.total_change[key];
-                // Compute a rounded percentage value
-                var percentage =  Math.round(1000 * change / val) / 10;
-                // Previous year lookup
-                var prev = {2000: 1990, 2006: 2000, 2012: 2006};
-                // Header prefix
-                var prefix = 'Changes for ' + prev[key] + '-' + key + ' ';
-                // Write percentage to header
-                if(!change){
-                    _this.ui['sankey_title' + key].html('No ' +  prefix);
-                } else if(percentage){
-                    _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">' + percentage + '% of Total</span>');
-                } else {
-                    _this.ui['sankey_title' + key].html(prefix + '<span class="pull-right">< 0.1% of Total</span>');
-                }
-            });
-            // For countries, add global percentage value
-            if(!this.model.attributes.sitename & this.model.attributes.level == 0){
-                var area_2012 = this.aggregates.filter(function(agg){ return !agg.change &  agg.year == 2012 ; });
-                area_2012 = _.reduce(area_2012, function(memo, x){ return memo + x.area }, 0);
-                var region_area = this.model.attributes.geom.attributes.properties.area;
-                var current_percentage = Math.round(100 * area_2012 / region_area);
-                this.ui.base_info.html(current_percentage + '% are protected.');
-            }
-        },
-
         createSankey: function(year){
             var data = this.createLinksNodesChange(year);
-
-            // Update section headings
-            this.computePercentages();
 
             // Hide element if no data is there
             if(data.links.length == 0){
