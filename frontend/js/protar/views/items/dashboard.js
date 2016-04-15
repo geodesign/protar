@@ -9,6 +9,7 @@ define([
         'collections/layers',
         'views/collections/legends',
         'views/collections/layers',
+        'views/items/dashboard-year',
         'text!templates/items/dashboard.html',
         'sankey',
         'sync'
@@ -23,6 +24,7 @@ define([
         Layers,
         LegendView,
         LayersView,
+        DYear,
         template
     ){
     //Define color conversion helper function
@@ -39,7 +41,7 @@ define([
         template: _.template(template),
 
         regions: {
-            year: '.year-region'
+            yearRegion: '.year-region'
         },
 
         ui: {
@@ -67,11 +69,12 @@ define([
             sankey_title2006: '.sankey-title-2006',
             sankey_title2012: '.sankey-title-2012',
 
-            base_info: '.base-info'
+            base_info: '.base-info',
+            year_region: '.year-region'
         },
 
         initialize: function(){
-            _.bindAll(this, 'createAll', 'createCharts', 'createSankeys');
+            _.bindAll(this, 'createAll');
             this.tile_layers = {};
             this.current_year = 2012;
             // Listen to menu events to update interface
@@ -79,6 +82,8 @@ define([
             this.listenTo(App.menuView, 'changed:legend', this.createAll);
             this.listenTo(App.menuView, 'changed:year', this.createAll);
             this.listenTo(App.menuView, 'changed:resize', this.createSankeys);
+            
+            this.year_model = new Backbone.Model({});
         },
 
         onShow: function(){
@@ -120,54 +125,37 @@ define([
             if(!this.noms_done || !this.layers_done || !this.geom_done) return;
             var _this = this;
 
-            // Toggle interface
-            if(this.current_year != App.menuView.current_year){
-                this.current_year = App.menuView.current_year;
-                if(this.current_year){
-                    this.ui['panel' + this.current_year].removeClass('mr-z').siblings('.row-year').addClass('mr-z');
-                } else {
-                    this.ui.panel_all.removeClass('mr-z').siblings('.row-year').addClass('mr-z');
-                }
-            }
+            this.current_year = App.menuView.current_year;
 
             // Combine nomenclature data to covers and compute aggregates
             this.bindData();
             this.computePercentages();
 
-            // Create all elements
-            this.createCharts()
-            this.createSankeys();
-            this.createMaps();
-        },
+            // Toggle interface
+            if(App.menuView.current_year){
+                this.ui.year_region.show();
+                this.ui.panel_all.hide();
+                // Set data for year view and render
+                this.year_model.set({
+                    aggregates: this.aggregates.filter(function(agg){ return agg.year == _this.current_year; }),
+                    geom: this.geom_result,
+                    rasterlayer: this.layers.filter(function(lyr){ return lyr.get('year') == _this.current_year && !lyr.change; })[0].get('rasterlayer'),
+                    year: this.current_year,
+                    previous_year: this.model.attributes.years[_.indexOf(this.model.attributes.years, this.current_year) - 1]
+                });
 
-        createCharts: function(){
-            var _this = this;
-            // Remove existing charts
-            _.each(this.charts, function(chart){ chart.destroy(); });
-
-            if(this.barchart) this.barchart.destroy();
-
-            // Reset chart arrays
-            this.charts = [];
-
-            // Create new charts
-            _.each([1990, 2000, 2006, 2012], function(year){
-                _this.createChart(year);
-            });
-
-            this.createStackedChart();
-        },
-
-        createSankeys: function(){
-            // Destroy existing sankeys
-            _.each(this.sankeys, function(svg){ svg.remove(); $('.sankey').html(''); });
-            // Reset sankey list
-            this.sankeys = [];
-            // Create sankeys
-            var _this = this;
-            _.each([2000, 2006, 2012], function(year){
-                _this.createSankey(year);
-            });
+                if(!this.year_view){
+                    this.year_view = new DYear({model: this.year_model});
+                    this.yearRegion.show(this.year_view);
+                } else {
+                    this.year_view.createAll();
+                }
+            } else {
+                this.ui.panel_all.show();
+                this.ui.year_region.hide();
+                // Create all elements
+                this.createStackedChart();
+            }
         },
 
         bindData: function(){
@@ -284,40 +272,6 @@ define([
                 var current_percentage = Math.round(100 * area_2012 / region_area);
                 this.ui.base_info.html(current_percentage + '% are protected.');
             }
-        },
-
-        createChart: function(year){
-            var _this = this;
-
-            // Get data for current year
-            var data = this.aggregates.filter(function(x){return x.year == year && !x.change; });
-
-            // Transform data to doughnut format
-            chart_data = {
-                labels: _.pluck(data, 'label'),
-                datasets: [
-                    {
-                        data: _.pluck(data, 'area'),
-                        backgroundColor: _.pluck(data, 'color'),
-                        borderWidth: 0
-                    }
-                ]
-            }
-            // Get chart area
-            var ctx = this.ui['chart' + year.toString()].get(0).getContext('2d');
-            // Create chart
-            var chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: chart_data,
-                options: {
-                    legend: {
-                        display: false
-                    },
-                    cutoutPercentage: 75
-                }
-            });
-
-            this.charts.push(chart);
         },
 
         createStackedChart: function(){
@@ -461,148 +415,6 @@ define([
                 }).addTo(LMap);
                 _this.tile_layers[layer.attributes.year] = tile_layer;
             });
-        },
-
-        createLinksNodesChange: function(year){
-            var _this = this;
-
-            // Prepare data buckets and access shortcuts
-            var nodes = {};
-            var links = [];
-            var node_index = 0;
-            var previous_year = this.model.attributes.years[_.indexOf(this.model.attributes.years, year) - 1];
-
-            // Use aggregates for chart
-            _.each(this.aggregates.filter(function(x){ return x.change; }), function(agg){
-                // Filter by time
-                if(agg.year == year){
-                    // Create target node if it does not exist
-                    var key_to = agg.code + '_' + year;
-                    if(!nodes[key_to]) {
-                        nodes[key_to] = {id: node_index, nomenclature: agg.nomenclature, year: year, name: agg.label, color: agg.color};
-                        node_index++;
-                    }
-                    // Create origin node if it does not exist
-                    var key_from = agg.code_previous + '_' + previous_year;
-                    if(!nodes[key_from]) {
-                        nodes[key_from] = {id: node_index, nomenclature: agg.nomenclature_previous, year: previous_year, name: agg.label_previous, color: agg.color_previous};
-                        node_index++;
-                    }
-                    // Create link
-                    links.push({
-                        source: nodes[key_from].id,
-                        target: nodes[key_to].id,
-                        value: agg.area
-                    });
-                }
-            });
-
-            return {links: links, nodes: _.values(nodes)};
-        },
-
-        createSankey: function(year){
-            var data = this.createLinksNodesChange(year);
-
-            // Hide element if no data is there
-            if(data.links.length == 0){
-                this.ui['sankey' + year].hide();
-                return;
-            } else {
-                this.ui['sankey' + year].show();
-            }
-
-            var margin = 10;
-            var width = $(".sankey-" + year.toString()).width() - margin - margin;
-
-            // Compute height as function of number of links
-            var height = data.links.length * 50;
-            height = height - margin - margin;
-            height = height > 500 ? 500 : height;
-            height = height < 80 ? 80 : height;
-
-            var formatNumber = d3.format(",.2f");
-            var format = function(d) {
-                return formatNumber(d) + " km2";
-            }
-            color = d3.scale.category20();
-
-            var svg = d3.select(".sankey-" + year.toString()).append("svg")
-                .attr("width", width + margin + margin)
-                .attr("height", height + margin + margin)
-                .append("g")
-                .attr("transform", "translate(" + margin + "," + margin + ")");
-
-            var sankey = d3.sankey()
-                .nodeWidth(15)
-                .nodePadding(10)
-                .size([width, height]);
-
-            var path = sankey.link();
-
-            sankey
-                .nodes(data.nodes)
-                .links(data.links)
-                .layout(32);
-
-            var link = svg.append("g").selectAll(".link")
-                .data(data.links)
-                .enter().append("path")
-                .attr("class", "link")
-                .attr("d", path)
-                .style("stroke-width", function(d) {
-                    return Math.max(1, d.dy);
-                })
-                .sort(function(a, b) {
-                    return b.dy - a.dy;
-                });
-
-            link.append("title")
-                .text(function(d) {
-                    return d.source.name + " → " + d.target.name + "\n" + format(d.value);
-                });
-
-            var node = svg.append("g").selectAll(".node")
-                .data(data.nodes)
-                .enter().append("g")
-                .attr("class", "node")
-                .attr("transform", function(d) {
-                    return "translate(" + d.x + "," + d.y + ")";
-                });
-
-            node.append("rect")
-                .attr("height", function(d) {
-                    return d.dy;
-                })
-                .attr("width", sankey.nodeWidth())
-                .style("fill", function(d) {
-                    return d.color;// = color(d.name.replace(/ .*/, ""));
-                })
-                .style("stroke", function(d) {
-                    return d3.rgb(d.color).darker(2);
-                })
-                .append("title")
-                .text(function(d) {
-                    return d.name + "\n" + format(d.value);
-                });
-
-            node.append("text")
-                .attr("x", -6)
-                .attr("y", function(d) {
-                    return d.dy / 2;
-                })
-                .attr("dy", ".35em")
-                .attr("text-anchor", "end")
-                .attr("transform", null)
-                .text(function(d) {
-                    return d.name;
-                })
-                .filter(function(d) {
-                    return d.x < width / 2;
-                })
-                .attr("x", 6 + sankey.nodeWidth())
-                .attr("text-anchor", "start");
-
-            this.sankeys.push(svg);
         }
     });
 
